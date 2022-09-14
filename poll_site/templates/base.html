@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Polls Site{% endblock %}</title>
+</head>
+
+<body>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'polls/style.css' %}">
+    <div id="sidebar" class="sidenav">
+        {% block sidebar %}
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/polls/">Questions</a></li>
+        </ul>
+        {% endblock %}
+    </div>
+
+    <div id="content" class="main">
+        <h1>Poll Site</h1>
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

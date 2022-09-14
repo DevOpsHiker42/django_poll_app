@@ -1,14 +1,7 @@
-<!DOCTYPE html>
-<html lang="en-US">
-  <head>
-    <meta charset="utf-8">
-    <title>Results</title>
-  </head>
-  <body>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'polls/style.css' %}">
-    <h1>{{ question.question_text }}</h1>
-    
+{% extends "base.html" %}
+{% block title %}Results{% endblock %}
+{% block content %}
+    <h2>Current Poll Results: {{ question.question_text }}</h3>
     <ul>
     {% for choice in question.choice_set.all %}
         <li>{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes|pluralize }}</li>
@@ -16,5 +9,6 @@
     </ul>
     
     <a href="{% url 'polls:detail' question.id %}">Vote again?</a>
-  </body>
-</html>
+    <br></br>
+    <a href="/polls/">Return to list of questions</a>
+{% endblock %}

@@ -1,12 +1,7 @@
-<!DOCTYPE html>
-<html lang="en-US">
-  <head>
-    <meta charset="utf-8">
-    <title>Question Detail</title>
-  </head>
-  <body>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'polls/style.css' %}">
+{% extends "base.html" %}
+{% block title %}Question Detail{% endblock %}
+{% block content %}
+    <h2>Poll Question:</h2>
     <form action="{% url 'polls:vote' question.id %}" method="post">
     {% csrf_token %}
     <fieldset>
@@ -19,5 +14,4 @@
     </fieldset>
     <input type="submit" value="Vote">
     </form>
-  </body>
-</html>
+{% endblock %}

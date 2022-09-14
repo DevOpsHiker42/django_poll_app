@@ -1,4 +1,5 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
+from django.template import loader
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
@@ -7,6 +8,10 @@ from django.utils import timezone
 
 from .models import Choice, Question
 
+def home_view(*args, **kwargs):
+    template = loader.get_template('index.html')
+    #return HttpResponse('<h1>Hello world!</h1>')
+    return HttpResponse(template.render())
 
 class IndexView(generic.ListView):
     template_name = 'polls/index.html'

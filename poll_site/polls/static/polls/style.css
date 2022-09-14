@@ -1,11 +1,43 @@
+li a {
+    color: green;
+}
+
+/* Background image from: https://commons.wikimedia.org/wiki/File:Sea_(Tumblr).jpg */
+/* https://css-tricks.com/perfect-full-page-background-image/ */
 html {
-  /* https://css-tricks.com/perfect-full-page-background-image/ */
     background: white url("images/Sea_(Tumblr).jpg") no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
 }
-li a {
-    color: green;
+
+/* Based on: https://www.techwithtim.net/tutorials/django/adding-a-sidebar/ */
+.sidenav {
+	height:100%;
+	width:220px;
+	position: fixed;
+	z-index:1;
+	top:0;
+	left:0;
+	background-color:#111;
+	overflow-x: :hidden;
+	padding-top:20px;
+}
+ 
+.sidenav a {
+	padding:6px 8px 6px 16px;
+	text-decoration: none;
+	font-size:25px;
+	color: #818181;
+	display:block;
+}
+
+.sidenav a:hover{
+	color:#f1f1f1;
+}	
+
+.main{
+	margin-left:220px;
+	padding: 0px 10px;
 }
