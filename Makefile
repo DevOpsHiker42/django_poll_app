@@ -11,9 +11,7 @@ install:
 
 test:
 	# This should be run from inside a virtualenv
-	# Additional, optional, tests could go here
-	#python -m pytest -vv --cov=myrepolib tests/*.py
-	#python -m pytest --nbval notebook.ipynb
+	#python manage.py test polls
 
 lint:
 	 # This should be run from inside a virtualenv
