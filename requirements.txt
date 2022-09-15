@@ -1,2 +1,4 @@
+wheel==0.37.1
+psycopg2
 django==4.1
 pylint==2.15.2
