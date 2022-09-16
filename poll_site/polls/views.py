@@ -10,7 +10,6 @@ from .models import Choice, Question
 
 def home_view(*args, **kwargs):
     template = loader.get_template('index.html')
-    #return HttpResponse('<h1>Hello world!</h1>')
     return HttpResponse(template.render())
 
 class IndexView(generic.ListView):
@@ -32,10 +31,10 @@ class DetailView(generic.DetailView):
     template_name = 'polls/detail.html'
 
     def get_queryset(self):
-            """
-            Excludes any questions that aren't published yet.
-            """
-            return Question.objects.filter(pub_date__lte=timezone.now())
+        """
+        Excludes any questions that aren't published yet.
+        """
+        return Question.objects.filter(pub_date__lte=timezone.now())
 
 
 class ResultsView(generic.DetailView):
