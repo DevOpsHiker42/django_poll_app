@@ -18,6 +18,6 @@ lint:
 	# This is linter for Dockerfiles - https://github.com/hadolint/hadolint
 	hadolint Dockerfile
 	# This is linter for Python source code - https://www.pylint.org/
-	pylint --disable=R,C,W1203,W1202 app.py
+	pylint --disable=R,C,W0613 --generated-members=objects,DoesNotExist poll_site/polls
 
 all: install lint test
