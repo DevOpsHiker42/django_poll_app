@@ -20,4 +20,13 @@ lint:
 	# This is linter for Python source code - https://www.pylint.org/
 	pylint --disable=R,C,W0613 --generated-members=objects,DoesNotExist poll_site/polls
 
+deploycheck:
+	python3 poll_site/manage.py check --deploy
+
+rundev:
+	python3 poll_site/manage.py runserver --setting poll_site.dev_settings
+
+runprod:
+	python3 poll_site/manage.py runserver --setting poll_site.prod_settings
+
 all: install lint test
