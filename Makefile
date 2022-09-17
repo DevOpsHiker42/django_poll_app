@@ -27,6 +27,6 @@ rundev:
 	python3 poll_site/manage.py runserver --setting poll_site.dev_settings
 
 runprod:
-	python3 poll_site/manage.py runserver --setting poll_site.prod_settings
+	cd poll_site && ./manage.py collectstatic && gunicorn --bind :8000 --workers 1 poll_site.wsgi:application
 
 all: install lint test
