@@ -1,5 +1,12 @@
 version: 2.1
 
+#executors:
+#  docker-publisher:
+#    environment:
+#      IMAGE_NAME: devopshiker42/django-polls:latest
+#    docker:
+#      - image: circleci/buildpack-deps:stretch
+
 jobs:
   qa:
     docker:
@@ -32,14 +39,30 @@ jobs:
             - ./venv
           key: v1-dependencies-{{ checksum "requirements.txt" }}
 
-      # run lint
       - run:
           name: run lint
           command: |
             . venv/bin/activate
             make lint
 
+      - run:
+          name: run tests
+          command: |
+            make test
+
 workflows:
   default:
     jobs:
       - qa
+#      - docker-build:
+#          requires:
+#            - qa
+#          filters:
+#            branches:
+#              only: master
+#      - docker-publish-latest:
+#          requires:
+#            - build
+#          filters:
+#            branches:
+#              only: master

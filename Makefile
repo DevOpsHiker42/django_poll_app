@@ -11,7 +11,7 @@ install:
 
 test:
 	# This should be run from inside a virtualenv
-	#python manage.py test polls
+	export DJANGO_SETTINGS_MODULE=poll_site.dev_settings && python3 poll_site/manage.py test polls
 
 lint:
 	# This should be run from inside a virtualenv
