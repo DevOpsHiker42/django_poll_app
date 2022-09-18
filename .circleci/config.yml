@@ -24,7 +24,6 @@ commands:
     steps:
       - aws-eks/delete-cluster:
           aws-region: us-east-1
-          when: on_fail
           cluster-name: "eksctl-cluster-"<< parameters.workflow_id >>
 
   revert-migrations:
@@ -38,7 +37,6 @@ commands:
           at: /tmp/workspace
       - run:
           name: Revert migrations
-          when: on_fail
           command: |
             # Activate virtual env
             . venv/bin/activate
@@ -175,7 +173,8 @@ jobs:
           tags: project=django_poll_app
 
       # rollback on failure
-      - destroy-eks-cluster
+      - destroy-eks-cluster:
+          when: on_fail
 
   run-migrations:
     docker:
@@ -241,7 +240,9 @@ jobs:
 
       # revert migrations and rollback on failure
       - revert-migrations
-      - destroy-eks-cluster
+          when: on_fail
+      - destroy-eks-cluster:
+          when: on_fail
 
 workflows:
   default:
