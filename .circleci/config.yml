@@ -223,6 +223,9 @@ jobs:
             # Run migrate
             python3 poll_site/manage.py migrate
 
+            #test revert
+            exit 1
+
       - persist_to_workspace:
           root: .
           paths:
