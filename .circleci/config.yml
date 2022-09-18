@@ -23,8 +23,8 @@ commands:
         default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       - aws-eks/delete-cluster:
-          cluster-name: "eksctl-cluster-"<< parameters.workflow_id >>
           aws-region: us-east-1
+          cluster-name: "eksctl-cluster-<< parameters.workflow_id >>"
 
   revert-migrations:
     description: revert last migration
