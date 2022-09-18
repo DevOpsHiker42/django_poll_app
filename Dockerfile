@@ -10,7 +10,7 @@ COPY poll_site /poll_site/
 COPY requirements.txt /tmp/requirements.txt
 # hadolint ignore=DL3013
 RUN pip3 install --no-cache-dir --trusted-host files.pythonhosted.org --upgrade pip &&\
-    pip3 install --no-cache-dir --trusted-host files.pythonhosted.org --r /tmp/requirements.txt
+    pip3 install --no-cache-dir --trusted-host files.pythonhosted.org -r /tmp/requirements.txt
 
 # Expose port 8000
 EXPOSE 8000
