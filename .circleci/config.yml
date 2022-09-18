@@ -127,6 +127,7 @@ jobs:
       - run:
           name: "check for model changes that haven't got migrations"
           command: |
+            . venv/bin/activate
             make migrationcheck 
 
   docker-build:
