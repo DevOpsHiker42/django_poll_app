@@ -25,9 +25,10 @@ commands:
       - run:
           name: destroy cluster
           when: on_fail
-          aws-eks/delete-cluster:
-            aws-region: us-east-1
-            cluster-name: "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}"
+          command: |
+            echo "Destroying eks cluster with ID: << parameters.workflow_id >> "
+            eksctl delete cluster --name "eksctl-cluster-"<< parameters.workflow_id >> \
+              --region=us-east-1
 
 jobs:
   qa:
