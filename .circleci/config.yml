@@ -3,6 +3,10 @@ version: 2.1
 # Docker build & publish jobs based on example at:
 # https://circleci.com/blog/using-circleci-workflows-to-replicate-docker-hub-automated-builds/
 
+orbs:
+  aws-eks: circleci/aws-eks@2.2.0
+  kubernetes: circleci/kubernetes@1.3
+
 executors:
   docker-publisher:
     environment:
@@ -109,13 +113,10 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      #- run: yum install -y tar gzip
-      - run:
-          name: create eks cluster
-          command: |
-            eksctl create cluster --name "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --region=us-east-1 \
-              --tags project=django_poll_app
+      - aws-eks/create-cluster:
+        aws-region: us-east-1
+        cluster-name: "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}"
+        tags project=django_poll_app
 
       # rollback on failure
       - destroy-eks-cluster
@@ -127,9 +128,6 @@ workflows:
       - docker-build:
           requires:
             - qa
-          filters:
-            branches:
-              only: master
       - docker-publish-latest:
           requires:
             - docker-build
@@ -138,9 +136,6 @@ workflows:
               only: master
       - create-eks-cluster:
           requires: [docker-publish-latest]
-          filters:
-            branches:
-              only: [master]
 #      - run-migrations:
 #          requires: [create-eks-cluster]
 #      - deploy-docker:
