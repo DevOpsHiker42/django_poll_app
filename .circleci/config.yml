@@ -36,54 +36,53 @@ commands:
       workflow_id:
         type: string
         default: ${CIRCLE_WORKFLOW_ID:0:7}
-    when:
-      condition: on_fail
-      steps:
-        - attach_workspace:
-            at: /tmp/workspace
-        - run:
-            name: Revert migrations
-            command: |
-              # Activate virtual env
-              . venv/bin/activate
-              # Revert polls
-              echo -------
-              ls -ltr /tmp/workspace
-              echo -------
-              mig_polls=`python3 poll_site/manage.py showmigrations --list polls|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
-              old_polls=`cat /tmp/workspace/lastmig_polls.txt`
-              if [ $mig_polls -ne $old_polls ]
-                python poll_site/manage.py migrate polls $old_polls
-              fi
-  
-              # Revert admin
-              mig_admin=`python3 poll_site/manage.py showmigrations --list admin|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
-              old_admin=`cat /tmp/workspace/lastmig_admin.txt`
-              if [ $mig_admin -ne $old_admin ]
-                python poll_site/manage.py migrate admin $old_admin
-              fi
-  
-              # Revert auth
-              mig_auth=`python3 poll_site/manage.py showmigrations --list auth|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
-              old_auth=`cat /tmp/workspace/lastmig_auth.txt`
-              if [ $mig_auth -ne $old_auth ]
-                python poll_site/manage.py migrate auth $old_auth
-              fi
-  
-              # Revert contenttypes
-              mig_contenttypes=`python3 poll_site/manage.py showmigrations --list contenttypes|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
-              old_contenttypes=`cat /tmp/workspace/lastmig_contenttypes.txt`
-              if [ $mig_contenttypes -ne $old_contenttypes ]
-                python poll_site/manage.py migrate contenttypes $old_contenttypes
-              fi
-  
-              # Revert sessions
-              mig_sessions=`python3 poll_site/manage.py showmigrations --list sessions|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
-              old_sessions=`cat /tmp/workspace/lastmig_sessions.txt`
-              if [ $mig_sessions -ne $old_sessions ]
-                python poll_site/manage.py migrate sessions $old_sessions
-              fi
-  
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Revert migrations
+          when: on_fail
+          command: |
+            # Activate virtual env
+            . venv/bin/activate
+            # Revert polls
+            echo -------
+            ls -ltr /tmp/workspace
+            echo -------
+            mig_polls=`python3 poll_site/manage.py showmigrations --list polls|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
+            old_polls=`cat /tmp/workspace/lastmig_polls.txt`
+            if [ $mig_polls -ne $old_polls ]
+              python poll_site/manage.py migrate polls $old_polls
+            fi
+
+            # Revert admin
+            mig_admin=`python3 poll_site/manage.py showmigrations --list admin|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
+            old_admin=`cat /tmp/workspace/lastmig_admin.txt`
+            if [ $mig_admin -ne $old_admin ]
+              python poll_site/manage.py migrate admin $old_admin
+            fi
+
+            # Revert auth
+            mig_auth=`python3 poll_site/manage.py showmigrations --list auth|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
+            old_auth=`cat /tmp/workspace/lastmig_auth.txt`
+            if [ $mig_auth -ne $old_auth ]
+              python poll_site/manage.py migrate auth $old_auth
+            fi
+
+            # Revert contenttypes
+            mig_contenttypes=`python3 poll_site/manage.py showmigrations --list contenttypes|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
+            old_contenttypes=`cat /tmp/workspace/lastmig_contenttypes.txt`
+            if [ $mig_contenttypes -ne $old_contenttypes ]
+              python poll_site/manage.py migrate contenttypes $old_contenttypes
+            fi
+
+            # Revert sessions
+            mig_sessions=`python3 poll_site/manage.py showmigrations --list sessions|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
+            old_sessions=`cat /tmp/workspace/lastmig_sessions.txt`
+            if [ $mig_sessions -ne $old_sessions ]
+              python poll_site/manage.py migrate sessions $old_sessions
+            fi
+
 jobs:
   qa:
     docker:
@@ -134,7 +133,7 @@ jobs:
           name: "check for model changes that haven't got migrations"
           command: |
             . venv/bin/activate
-            make migrationcheck 
+            make migrationcheck
 
   docker-build:
     executor: docker-publisher
