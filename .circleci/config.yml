@@ -22,13 +22,10 @@ commands:
         type: string
         default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
-      - run:
-          name: destroy cluster
+      - aws-eks/delete-cluster:
+          aws-region: us-east-1
           when: on_fail
-          command: |
-            echo "Destroying eks cluster with ID: << parameters.workflow_id >> "
-            eksctl delete cluster --name "eksctl-cluster-"<< parameters.workflow_id >> \
-              --region=us-east-1
+          cluster-name: "eksctl-cluster-"<< parameters.workflow_id >>
 
   revert-migrations:
     description: revert last migration
@@ -46,38 +43,41 @@ commands:
             # Activate virtual env
             . venv/bin/activate
             # Revert polls
+            echo -------
+            ls -ltr /tmp/workspace
+            echo -------
             mig_polls=`python3 poll_site/manage.py showmigrations --list polls|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
             old_polls=`cat /tmp/workspace/lastmig_polls.txt`
             if [ $mig_polls -ne $old_polls ]
-              python manage.py migrate polls $old_polls
+              python poll_site/manage.py migrate polls $old_polls
             fi
 
             # Revert admin
             mig_admin=`python3 poll_site/manage.py showmigrations --list admin|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
             old_admin=`cat /tmp/workspace/lastmig_admin.txt`
             if [ $mig_admin -ne $old_admin ]
-              python manage.py migrate admin $old_admin
+              python poll_site/manage.py migrate admin $old_admin
             fi
 
             # Revert auth
             mig_auth=`python3 poll_site/manage.py showmigrations --list auth|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
             old_auth=`cat /tmp/workspace/lastmig_auth.txt`
             if [ $mig_auth -ne $old_auth ]
-              python manage.py migrate auth $old_auth
+              python poll_site/manage.py migrate auth $old_auth
             fi
 
             # Revert contenttypes
             mig_contenttypes=`python3 poll_site/manage.py showmigrations --list contenttypes|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
             old_contenttypes=`cat /tmp/workspace/lastmig_contenttypes.txt`
             if [ $mig_contenttypes -ne $old_contenttypes ]
-              python manage.py migrate contenttypes $old_contenttypes
+              python poll_site/manage.py migrate contenttypes $old_contenttypes
             fi
 
             # Revert sessions
             mig_sessions=`python3 poll_site/manage.py showmigrations --list sessions|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
             old_sessions=`cat /tmp/workspace/lastmig_sessions.txt`
             if [ $mig_sessions -ne $old_sessions ]
-              python manage.py migrate sessions $old_sessions
+              python poll_site/manage.py migrate sessions $old_sessions
             fi
 
 jobs:
@@ -166,7 +166,7 @@ jobs:
 
   create-eks-cluster:
     docker:
-      - image: 'cimg/python:3.10'
+      - image: 'cimg/python:3.8.5'
     steps:
       - checkout
       - aws-eks/create-cluster:
@@ -182,6 +182,8 @@ jobs:
       - image: cimg/python:3.8.5
         environment:
           sky: $sky
+
+    working_directory: ~/repo
 
     steps:
       - checkout
@@ -254,10 +256,10 @@ workflows:
           filters:
             branches:
               only: master
-      - create-eks-cluster:
-          requires: [docker-publish-latest]
+#      - create-eks-cluster:
+#          requires: [docker-publish-latest]
       - run-migrations:
-          requires: [create-eks-cluster]
+          requires: [docker-publish-latest]
 #      - deploy-docker:
 #          requires: [run-migrations]
 #      - smoke-test:
