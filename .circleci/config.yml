@@ -178,7 +178,8 @@ jobs:
           tags: project=django_poll_app
       - run:
           name: Test rollback
-          command: exit 1
+          command: |
+            exit 1
 
       # rollback on failure
       - destroy-eks-cluster:
