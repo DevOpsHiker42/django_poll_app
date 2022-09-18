@@ -6,7 +6,7 @@ version: 2.1
 executors:
   docker-publisher:
     environment:
-      IMAGE_NAME: devopshiker42/django-polls:latest
+      IMAGE_NAME: devopshiker42/django-polls
     docker:
       - image: circleci/buildpack-deps:stretch
 
