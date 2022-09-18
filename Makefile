@@ -23,6 +23,12 @@ lint:
 deploycheck:
 	python3 poll_site/manage.py check --deploy
 
+migrations:
+	python3 poll_site/manage.py makemigrations
+
+migrationcheck:
+	python3 poll_site/manage.py makemigrations --check
+
 rundev:
 	python3 poll_site/manage.py runserver --setting poll_site.dev_settings
 

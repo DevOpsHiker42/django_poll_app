@@ -30,6 +30,54 @@ commands:
             eksctl delete cluster --name "eksctl-cluster-"<< parameters.workflow_id >> \
               --region=us-east-1
 
+  revert-migrations:
+    description: revert last migration
+    parameters:
+      workflow_id:
+        type: string
+        default: ${CIRCLE_WORKFLOW_ID:0:7}
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Revert migrations
+          when: on_fail
+          command: |
+            # Revert polls
+            mig_polls=`python3 poll_site/manage.py showmigrations --list polls|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
+            old_polls=`cat /tmp/workspace/lastmig_polls.txt`
+            if [ $mig_polls -ne $old_polls ]
+              python manage.py migrate polls $old_polls
+            fi
+
+            # Revert admin
+            mig_admin=`python3 poll_site/manage.py showmigrations --list admin|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
+            old_admin=`cat /tmp/workspace/lastmig_admin.txt`
+            if [ $mig_admin -ne $old_admin ]
+              python manage.py migrate admin $old_admin
+            fi
+
+            # Revert auth
+            mig_auth=`python3 poll_site/manage.py showmigrations --list auth|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
+            old_auth=`cat /tmp/workspace/lastmig_auth.txt`
+            if [ $mig_auth -ne $old_auth ]
+              python manage.py migrate auth $old_auth
+            fi
+
+            # Revert contenttypes
+            mig_contenttypes=`python3 poll_site/manage.py showmigrations --list contenttypes|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
+            old_contenttypes=`cat /tmp/workspace/lastmig_contenttypes.txt`
+            if [ $mig_contenttypes -ne $old_contenttypes ]
+              python manage.py migrate contenttypes $old_contenttypes
+            fi
+
+            # Revert sessions
+            mig_sessions=`python3 poll_site/manage.py showmigrations --list sessions|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
+            old_sessions=`cat /tmp/workspace/lastmig_sessions.txt`
+            if [ $mig_sessions -ne $old_sessions ]
+              python manage.py migrate sessions $old_sessions
+            fi
+
 jobs:
   qa:
     docker:
@@ -76,6 +124,11 @@ jobs:
             . venv/bin/activate
             make test
 
+      - run:
+          name: "check for model changes that haven't got migrations"
+          command: |
+            make migrationcheck 
+
   docker-build:
     executor: docker-publisher
     steps:
@@ -117,12 +170,69 @@ jobs:
           aws-region: us-east-1
           cluster-name: "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}"
           tags: project=django_poll_app
-      - run:
-          name: Test rollback
-          command: |
-            exit 1
 
       # rollback on failure
+      - destroy-eks-cluster
+
+  run-migrations:
+    docker:
+      - image: cimg/python:3.8.5
+        environment:
+          sky: $sky
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "requirements.txt" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run:
+          name: install dependencies
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            make install
+            # Install hadolint
+            sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
+            sudo chmod +x /bin/hadolint
+
+      - save_cache:
+          paths:
+            - ./venv
+          key: v1-dependencies-{{ checksum "requirements.txt" }}
+
+      - run:
+          name: Run migrations
+          command: |
+            . venv/bin/activate
+
+            # Get last migrations already applied in case we need to roll back
+            python3 poll_site/manage.py showmigrations --list polls|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > lastmig_polls.txt
+            python3 poll_site/manage.py showmigrations --list admin|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > lastmig_admin.txt
+            python3 poll_site/manage.py showmigrations --list auth|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > lastmig_auth.txt
+            python3 poll_site/manage.py showmigrations --list contenttypes|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > lastmig_contenttypes.txt
+            python3 poll_site/manage.py showmigrations --list sessions|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > lastmig_sessions.txt
+
+            cat lastmig*.txt
+
+            # Run migrate
+            python3 poll_site/manage.py migrate
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./lastmig_polls.txt
+            - ./lastmig_admin.txt
+            - ./lastmig_auth.txt
+            - ./lastmig_contenttypes.txt
+            - ./lastmig_sessions.txt
+
+      # revert migrations and rollback on failure
+      - revert-migrations
       - destroy-eks-cluster
 
 workflows:
@@ -140,8 +250,8 @@ workflows:
               only: master
       - create-eks-cluster:
           requires: [docker-publish-latest]
-#      - run-migrations:
-#          requires: [create-eks-cluster]
+      - run-migrations:
+          requires: [create-eks-cluster]
 #      - deploy-docker:
 #          requires: [run-migrations]
 #      - smoke-test:
