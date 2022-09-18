@@ -21,18 +21,23 @@ lint:
 	pylint --disable=R,C,W0613 --generated-members=objects,DoesNotExist poll_site/polls
 
 deploycheck:
+	# This should be run from inside a virtualenv
 	python3 poll_site/manage.py check --deploy
 
 migrations:
+	# This should be run from inside a virtualenv
 	python3 poll_site/manage.py makemigrations
 
 migrationcheck:
+	# This should be run from inside a virtualenv
 	python3 poll_site/manage.py makemigrations --check
 
 rundev:
+	# This should be run from inside a virtualenv
 	python3 poll_site/manage.py runserver --setting poll_site.dev_settings
 
 runprod:
+	# This should be run from inside a virtualenv
 	cd poll_site && ./manage.py collectstatic && gunicorn --bind :8000 --workers 1 poll_site.wsgi:application
 
 all: install lint test
