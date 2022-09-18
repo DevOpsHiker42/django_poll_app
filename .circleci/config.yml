@@ -24,9 +24,12 @@ commands:
     when:
       condition: on_fail
       steps:
-        - aws-eks/delete-cluster:
-            aws-region: us-east-1
-            cluster-name: "eksctl-cluster-"<< parameters.workflow_id >>
+        #- aws-eks/delete-cluster:
+        #    aws-region: us-east-1
+        #    cluster-name: "eksctl-cluster-"<< parameters.workflow_id >>
+        - run:
+            name: Debug schema
+            command: ls
 
   revert-migrations:
     description: revert last migration
