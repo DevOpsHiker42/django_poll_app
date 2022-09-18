@@ -168,7 +168,7 @@ jobs:
 
   create-eks-cluster:
     docker:
-      - image: 'cimg/python:3.8.5'
+      - image: cimg/python:3.8.5
     steps:
       - checkout
       - aws-eks/create-cluster:
