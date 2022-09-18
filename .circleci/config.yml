@@ -21,15 +21,14 @@ commands:
       workflow_id:
         type: string
         default: ${CIRCLE_WORKFLOW_ID:0:7}
-    when:
-      condition: on_fail
-      steps:
-        #- aws-eks/delete-cluster:
-        #    aws-region: us-east-1
-        #    cluster-name: "eksctl-cluster-"<< parameters.workflow_id >>
-        - run:
-            name: Debug schema
-            command: ls
+    steps:
+      #- aws-eks/delete-cluster:
+      #    aws-region: us-east-1
+      #    cluster-name: "eksctl-cluster-"<< parameters.workflow_id >>
+      - run:
+          name: Debug schema
+          when: on_fail
+          command: ls
 
   revert-migrations:
     description: revert last migration
