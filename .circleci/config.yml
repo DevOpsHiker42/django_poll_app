@@ -25,10 +25,9 @@ commands:
       - run:
           name: destroy cluster
           when: on_fail
-          command: |
-            echo "Destroying eks cluster with ID: << parameters.workflow_id >> "
-            eksctl delete cluster --name "eksctl-cluster-"<< parameters.workflow_id >> \
-              --region=us-east-1
+          aws-eks/delete-cluster:
+            aws-region: us-east-1
+            cluster-name: "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}"
 
 jobs:
   qa:
@@ -110,13 +109,13 @@ jobs:
 
   create-eks-cluster:
     docker:
-      - image: amazon/aws-cli
+      - image: 'cimg/python:3.10'
     steps:
       - checkout
       - aws-eks/create-cluster:
-        aws-region: us-east-1
-        cluster-name: "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}"
-        tags project=django_poll_app
+          aws-region: us-east-1
+          cluster-name: "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}"
+          tags: project=django_poll_app
 
       # rollback on failure
       - destroy-eks-cluster
