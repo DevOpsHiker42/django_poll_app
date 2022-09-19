@@ -286,14 +286,14 @@ jobs:
           #cluster-name: eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}
           cluster-name: eksctl-cluster-064a8e2
           install-kubectl: true
-      - run:
-          name: Create dockercreds
-          command: |
-            kubectl create secret docker-registry dcreds \
-              --docker-server=https://index.docker.io/v1/ \
-              --docker-username=$DOCKERHUB_USERNAME \
-              --docker-password=$DOCKERHUB_PASSWORD \
-              --docker-email=$DOCKERHUB_EMAIL
+#      - run:
+#          name: Create dockercreds
+#          command: |
+#            kubectl create secret docker-registry dcreds \
+#              --docker-server=https://index.docker.io/v1/ \
+#              --docker-username=$DOCKERHUB_USERNAME \
+#              --docker-password=$DOCKERHUB_PASSWORD \
+#              --docker-email=$DOCKERHUB_EMAIL
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
           resource-file-path: django-deployment.yml
