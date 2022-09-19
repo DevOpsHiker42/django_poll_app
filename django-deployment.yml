@@ -1,0 +1,25 @@
+apiVersi: apps/v1
+# Based on examples at:
+# https://towardsdatascience.com/kubernetes-application-deployment-with-aws-eks-and-ecr-4600e11b2d3c
+# https://k8s.io/examples/pods/private-reg-pod.yaml
+kind: Deployment
+metadata:
+  name: django-polls
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django-polls
+  template:
+    metadata:
+      labels:
+        app: django-polls
+    spec:
+      containers:
+        - name: django-polls-container
+          image: devopshiker42/django-polls:latest
+          ports:
+            - containerPort: 8000
+      imagePullSecrets:
+        - name: dcreds

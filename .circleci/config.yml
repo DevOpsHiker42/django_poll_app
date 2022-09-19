@@ -294,10 +294,10 @@ jobs:
               --docker-username=$DOCKERHUB_USERNAME \
               --docker-password=$DOCKERHUB_PASSWORD \
               --docker-email=$DOCKERHUB_EMAIL
-      #- kubernetes/create-or-update-resource:
-      #    get-rollout-status: true
-      #    resource-file-path: django-deployment.yml
-      #    resource-name: deployment/django-deployment
+      - kubernetes/create-or-update-resource:
+          get-rollout-status: true
+          resource-file-path: django-deployment.yml
+          resource-name: deployment/django-deployment
       - run:
           name: Get pods
           command: |
