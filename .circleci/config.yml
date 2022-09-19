@@ -18,7 +18,7 @@ commands:
     description: Install eksctl
     steps:
       - run:
-          # From: 
+          # From:
           name: Install eksctl
           command: |
             echo "insecure" >> ~/.curlrc
@@ -44,9 +44,16 @@ commands:
   revert-migrations:
     description: revert last migration
     parameters:
-      workflow_id:
+      target_polls:
         type: string
-        default: ${CIRCLE_WORKFLOW_ID:0:7}
+      target_admin:
+        type: string
+      target_auth:
+        type: string
+      target_contenttype:
+        type: string
+      target_sessions:
+        type: string
     steps:
       - run:
           name: Revert migrations
@@ -54,32 +61,32 @@ commands:
           command: |
             # Revert polls
             mig_polls=`python3 poll_site/manage.py showmigrations --list polls|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
-            if [ $mig_polls -ne $old_polls ]
-              python poll_site/manage.py migrate polls $old_polls
+            if [ $mig_polls -ne << parameters.target_polls >> ]
+              python poll_site/manage.py migrate polls << parameters.target_polls >>
             fi
 
             # Revert admin
             mig_admin=`python3 poll_site/manage.py showmigrations --list admin|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
-            if [ $mig_admin -ne $old_admin ]
-              python poll_site/manage.py migrate admin $old_admin
+            if [ $mig_admin -ne << parameters.target_admin >> ]
+              python poll_site/manage.py migrate admin << parameters.target_admin >>
             fi
 
             # Revert auth
             mig_auth=`python3 poll_site/manage.py showmigrations --list auth|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
-            if [ $mig_auth -ne $old_auth ]
-              python poll_site/manage.py migrate auth $old_auth
+            if [ $mig_auth -ne << parameters.target_auth >> ]
+              python poll_site/manage.py migrate auth << parameters.target_auth >>
             fi
 
             # Revert contenttypes
             mig_contenttypes=`python3 poll_site/manage.py showmigrations --list contenttypes|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
-            if [ $mig_contenttypes -ne $old_contenttypes ]
-              python poll_site/manage.py migrate contenttypes $old_contenttypes
+            if [ $mig_contenttypes -ne << parameters.target_contenttypes >> ]
+              python poll_site/manage.py migrate contenttypes << parameters.target_contenttypes >>
             fi
 
             # Revert sessions
             mig_sessions=`python3 poll_site/manage.py showmigrations --list sessions|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
-            if [ $mig_sessions -ne $old_sessions ]
-              python poll_site/manage.py migrate sessions $old_sessions
+            if [ $mig_sessions -ne << parameters.target_sessions >> ]
+              python poll_site/manage.py migrate sessions << parameters.target_sessions >>
             fi
 
 jobs:
@@ -240,7 +247,12 @@ jobs:
             exit 1
 
       # revert migrations and rollback on failure
-      - revert-migrations
+      - revert-migrations:
+          target_polls: $old_polls
+          target_admin: $old_admin
+          target_auth: $old_auth
+          target_contenttype: $old_contenttypes
+          target_sessions: $old_sessions
       #- destroy-eks-cluster
 
 workflows:
