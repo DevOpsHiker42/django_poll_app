@@ -278,6 +278,7 @@ jobs:
       - image: cimg/python:3.8.5
         environment:
           DOCKERHUB_USERNAME: $DOCKERHUB_USERNAME
+          DOCKERHUB_PASSWORD: $DOCKERHUB_PASSWORD
           DOCKERHUB_EMAIL: $DOCKERHUB_EMAIL
     steps:
       - checkout
@@ -289,7 +290,7 @@ jobs:
           name: Create dockercreds
           command: |
             kubectl create secret docker-registry dcreds \
-              --docker-server=<your-registry-server> \
+              --docker-server=https://index.docker.io/v1/ \
               --docker-username=$DOCKERHUB_USERNAME \
               --docker-password=$DOCKERHUB_PASSWORD \
               --docker-email=$DOCKERHUB_EMAIL
