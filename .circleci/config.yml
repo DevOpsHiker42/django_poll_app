@@ -182,13 +182,12 @@ jobs:
     steps:
       - checkout
       - install-eksctl
-      #- run:
-      #    name: Create cluster
-      #    command: |
-      #      eksctl create cluster --name "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
-      #        --region=us-east-1 \
-      #        --tags project=django_poll_app
-      #      # exit 1
+      - run:
+          name: Create cluster
+          command: |
+            eksctl create cluster --name "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --region=us-east-1 \
+              --tags project=django_poll_app
 
       # rollback cluster on failure
       - destroy-eks-cluster
@@ -203,6 +202,7 @@ jobs:
 
     steps:
       - checkout
+      - install-eksctl
 
       # Download and cache dependencies
       - restore_cache:
@@ -257,7 +257,7 @@ jobs:
 
       # revert migrations and rollback on failure
       - revert-migrations
-      - destroy-eks-cluster
+      #- destroy-eks-cluster
 
 workflows:
   default:
@@ -272,9 +272,9 @@ workflows:
 #          filters:
 #            branches:
 #              only: master
-      - create-eks-cluster
 #      - create-eks-cluster:
 #          requires: [docker-publish-latest]
+      - run-migrations
 #      - run-migrations:
 #          requires: [create-eks-cluster]
 #      - deploy-docker:
