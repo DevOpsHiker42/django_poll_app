@@ -176,8 +176,8 @@ jobs:
           name: Create k8s cluster
           command: |
             eksctl version
-            eksctl create cluster --name "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --region=us-east-1
+            #eksctl create cluster --name "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
+            #  --region=us-east-1
       #- run:
       #    name: test rollback
       #    command: |
