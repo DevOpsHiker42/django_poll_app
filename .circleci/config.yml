@@ -289,9 +289,9 @@ jobs:
       #    resource-file-path: django-deployment.yml
       #    resource-name: deployment/django-deployment
       - run:
-          name: List pods
+          name: Get pods
           command: |
-            kubectl list pods
+            kubectl get pods
       - run:
           name: Get deployments
           command: |
