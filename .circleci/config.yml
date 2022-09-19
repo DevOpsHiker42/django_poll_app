@@ -252,16 +252,16 @@ jobs:
             . venv/bin/activate
 
             # Get last migrations already applied in case we need to roll back
-            export old_polls=`python3 poll_site/manage.py showmigrations --list polls| \
-              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
-            export old_admin=`python3 poll_site/manage.py showmigrations --list admin| \
-              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
-            export old_auth=`python3 poll_site/manage.py showmigrations --list auth| \
-              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
-            export old_contenttypes=`python3 poll_site/manage.py showmigrations --list contenttypes| \
-              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
-            export old_sessions=`python3 poll_site/manage.py showmigrations --list sessions| \
-              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
+            python3 poll_site/manage.py showmigrations --list polls| \
+              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > last_polls.txt
+            python3 poll_site/manage.py showmigrations --list admin| \
+              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > last_admin.txt
+            python3 poll_site/manage.py showmigrations --list auth| \
+              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > last_auth.txt
+            python3 poll_site/manage.py showmigrations --list contenttypes| \
+              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > last_contenttypes.txt
+            python3 poll_site/manage.py showmigrations --list sessions| \
+              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > last_sessions.txt
 
             # Run migrate
             python3 poll_site/manage.py migrate
@@ -271,11 +271,11 @@ jobs:
 
       # revert migrations and rollback on failure
       - revert-migrations:
-          target_polls: ${old_polls}
-          target_admin: ${old_admin}
-          target_auth: ${old_auth}
-          target_contenttypes: ${old_contenttypes}
-          target_sessions: ${old_sessions}
+          target_polls: `cat last_polls.txt`
+          target_admin: `cat last_admin.txt`
+          target_auth: `cat last_auth.txt`
+          target_contenttypes: `cat last_contenttypes.txt`
+          target_sessions: `cat last_sessions.txt`
       #- destroy-eks-cluster
 
 workflows:
