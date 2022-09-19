@@ -46,14 +46,19 @@ commands:
     parameters:
       target_polls:
         type: string
+        default: NOT_SET
       target_admin:
         type: string
+        default: NOT_SET
       target_auth:
         type: string
+        default: NOT_SET
       target_contenttype:
         type: string
+        default: NOT_SET
       target_sessions:
         type: string
+        default: NOT_SET
     steps:
       - run:
           name: Revert migrations
@@ -248,11 +253,11 @@ jobs:
 
       # revert migrations and rollback on failure
       - revert-migrations:
-          target_polls: $old_polls
-          target_admin: $old_admin
-          target_auth: $old_auth
-          target_contenttype: $old_contenttypes
-          target_sessions: $old_sessions
+          target_polls: ${old_polls}
+          target_admin: ${old_admin}
+          target_auth: ${old_auth}
+          target_contenttype: ${old_contenttypes}
+          target_sessions: ${old_sessions}
       #- destroy-eks-cluster
 
 workflows:
