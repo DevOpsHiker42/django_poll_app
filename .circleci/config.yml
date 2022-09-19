@@ -43,23 +43,9 @@ commands:
 
   revert-migrations:
     description: revert last migration
-    parameters:
-      target_polls:
-        type: string
-        default: NOT_SET
-      target_admin:
-        type: string
-        default: NOT_SET
-      target_auth:
-        type: string
-        default: NOT_SET
-      target_contenttypes:
-        type: string
-        default: NOT_SET
-      target_sessions:
-        type: string
-        default: NOT_SET
     steps:
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
           name: Revert migrations
           when: on_fail
@@ -70,7 +56,8 @@ commands:
             # Revert polls
             mig_polls=`python3 poll_site/manage.py showmigrations --list polls|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
             echo "Current polls migration: "${mig_polls}
-            echo "Previous polls migration: << parameters.target_polls >>
+            $last_polls = `cat last_polls.txt`
+            echo "Previous polls migration: "${last_polls}
             if [ $mig_polls -ne << parameters.target_polls >> ]
             then
               python poll_site/manage.py migrate polls << parameters.target_polls >>
@@ -79,7 +66,8 @@ commands:
             # Revert admin
             mig_admin=`python3 poll_site/manage.py showmigrations --list admin|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
             echo "Current admin migration: "${mig_admin}
-            echo "Previous admin migration: << parameters.target_admin >>
+            $last_admin = `cat last_admin.txt`
+            echo "Previous admin migration: "${last_admin}
             if [ $mig_admin -ne << parameters.target_admin >> ]
             then
               python poll_site/manage.py migrate admin << parameters.target_admin >>
@@ -88,7 +76,8 @@ commands:
             # Revert auth
             mig_auth=`python3 poll_site/manage.py showmigrations --list auth|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
             echo "Current auth migration: "${mig_auth}
-            echo "Previous auth migration: << parameters.target_auth >>
+            $last_auth = `cat last_auth.txt`
+            echo "Previous auth migration: "${last_auth}
             if [ $mig_auth -ne << parameters.target_auth >> ]
             then
               python poll_site/manage.py migrate auth << parameters.target_auth >>
@@ -97,7 +86,8 @@ commands:
             # Revert contenttypes
             mig_contenttypes=`python3 poll_site/manage.py showmigrations --list contenttypes|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
             echo "Current contenttypes migration: "${mig_contenttypes}
-            echo "Previous contenttypes migration: << parameters.target_contenttypes >>
+            $last_contenttypes = `cat last_contenttypes.txt`
+            echo "Previous contenttypes migration: "${last_contenttypes}
             if [ $mig_contenttypes -ne << parameters.target_contenttypes >> ]
             then
               python poll_site/manage.py migrate contenttypes << parameters.target_contenttypes >>
@@ -106,7 +96,8 @@ commands:
             # Revert sessions
             mig_sessions=`python3 poll_site/manage.py showmigrations --list sessions|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
             echo "Current sessions migration: "${mig_sessions}
-            echo "Previous sessions migration: << parameters.target_sessions >>
+            $last_sessions = `cat last_sessions.txt`
+            echo "Previous sessions migration: "${last_sessions}
             if [ $mig_sessions -ne << parameters.target_sessions >> ]
             then
               python poll_site/manage.py migrate sessions << parameters.target_sessions >>
@@ -247,7 +238,7 @@ jobs:
           key: v1-dependencies-{{ checksum "requirements.txt" }}
 
       - run:
-          name: Run migrations
+          name: Get migrations already applied
           command: |
             . venv/bin/activate
 
@@ -263,6 +254,20 @@ jobs:
             python3 poll_site/manage.py showmigrations --list sessions| \
               grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > last_sessions.txt
 
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./last_polls.txt
+            - ./last_admin.txt
+            - ./last_auth.txt
+            - ./last_contenttypes.txt
+            - ./last_sessions.txt
+
+      - run:
+          name: Run migrations
+          command: |
+            . venv/bin/activate
+
             # Run migrate
             python3 poll_site/manage.py migrate
 
@@ -270,12 +275,7 @@ jobs:
             exit 1
 
       # revert migrations and rollback on failure
-      - revert-migrations:
-          target_polls: `cat last_polls.txt`
-          target_admin: `cat last_admin.txt`
-          target_auth: `cat last_auth.txt`
-          target_contenttypes: `cat last_contenttypes.txt`
-          target_sessions: `cat last_sessions.txt`
+      - revert-migrations
       #- destroy-eks-cluster
 
 workflows:
