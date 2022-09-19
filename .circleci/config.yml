@@ -184,7 +184,7 @@ jobs:
       #      exit 1
 
       # rollback cluster on failure
-      - destroy-eks-cluster
+      #- destroy-eks-cluster
 
   run-migrations:
     docker:
