@@ -4,7 +4,6 @@ version: 2.1
 # https://circleci.com/blog/using-circleci-workflows-to-replicate-docker-hub-automated-builds/
 
 orbs:
-  aws-eks: circleci/aws-eks@2.2.0
   kubernetes: circleci/kubernetes@1.3
 
 executors:
@@ -170,14 +169,20 @@ jobs:
       - image: cimg/python:3.8.5
     steps:
       - checkout
-      - aws-eks/create-cluster:
-          aws-region: us-east-1
-          cluster-name: "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}"
-          tags: project=django_poll_app
-      #- run:
-      #    name: test rollback
-      #    command: |
-      #      exit 1
+      - run:
+          # From: 
+          name: Install eksctl
+          command: |
+            echo "insecure" >> ~/.curlrc
+            curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+            sudo mv /tmp/eksctl /usr/local/bin
+      - run:
+          name: Create cluster
+          command: |
+            eksctl create cluster --name "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --region=us-east-1 \
+              --tags project=django_poll_app
+            # exit 1
 
       # rollback cluster on failure
       - destroy-eks-cluster
