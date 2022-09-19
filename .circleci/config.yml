@@ -277,13 +277,22 @@ jobs:
     docker:
       - image: cimg/python:3.8.5
         environment:
-          sky: $sky
+          DOCKERHUB_USERNAME: $DOCKERHUB_USERNAME
+          DOCKERHUB_EMAIL: $DOCKERHUB_EMAIL
     steps:
       - checkout
       - aws-eks/update-kubeconfig-with-authenticator:
           #cluster-name: eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}
           cluster-name: eksctl-cluster-064a8e2
           install-kubectl: true
+      - run:
+          name: Create dockercreds
+          command: |
+            kubectl create secret docker-registry dcreds \
+              --docker-server=<your-registry-server> \
+              --docker-username=$DOCKERHUB_USERNAME \
+              --docker-password=$DOCKERHUB_PASSWORD \
+              --docker-email=$DOCKERHUB_EMAIL
       #- kubernetes/create-or-update-resource:
       #    get-rollout-status: true
       #    resource-file-path: django-deployment.yml
@@ -297,7 +306,6 @@ jobs:
           command: |
             kubectl get deployments
 
-      #       echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
       # revert migrations and rollback on failure
       #- revert-migrations
