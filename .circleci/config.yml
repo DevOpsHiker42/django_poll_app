@@ -177,10 +177,12 @@ jobs:
           command: |
             exit 1
       # rollback cluster on failure
-      - aws-eks/delete-cluster:
-          when: on_fail
-          aws-region: us-east-1
-          cluster-name: "eksctl-cluster-"<< parameters.workflow_id >>
+      when:
+        condition: on_fail
+        steps:
+        - aws-eks/delete-cluster:
+            aws-region: us-east-1
+            cluster-name: "eksctl-cluster-"<< parameters.workflow_id >>
 
   run-migrations:
     docker:
