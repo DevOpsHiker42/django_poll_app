@@ -167,24 +167,18 @@ jobs:
 
   create-eks-cluster:
     docker:
-      - image: cimg/python:3.8.5
+      - image: 'cimg/python:3.10'
     steps:
       - checkout
       # Run aws-eks/setup to install eksctl
       - aws-eks/setup
-      - run:
-          name: Create k8s cluster
-          command: |
-            eksctl version
-            #eksctl create cluster --name "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
-            #  --region=us-east-1
-      #- run:
-      #    name: test rollback
-      #    command: |
-      #      exit 1
+      - aws-eks/create-cluster:
+          aws-region: us-east-1
+          cluster-name: "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}"
+          tags: project=django_poll_app
 
-      # rollback cluster on failure
-      #- destroy-eks-cluster
+      # rollback on failure
+      - destroy-eks-cluster
 
   run-migrations:
     docker:
