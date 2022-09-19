@@ -69,6 +69,8 @@ commands:
 
             # Revert polls
             mig_polls=`python3 poll_site/manage.py showmigrations --list polls|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
+            echo "Current polls migration: "${mig_polls}
+            echo "Previous polls migration: << parameters.target_polls >>
             if [ $mig_polls -ne << parameters.target_polls >> ]
             then
               python poll_site/manage.py migrate polls << parameters.target_polls >>
@@ -76,6 +78,8 @@ commands:
 
             # Revert admin
             mig_admin=`python3 poll_site/manage.py showmigrations --list admin|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
+            echo "Current admin migration: "${mig_admin}
+            echo "Previous admin migration: << parameters.target_admin >>
             if [ $mig_admin -ne << parameters.target_admin >> ]
             then
               python poll_site/manage.py migrate admin << parameters.target_admin >>
@@ -83,6 +87,8 @@ commands:
 
             # Revert auth
             mig_auth=`python3 poll_site/manage.py showmigrations --list auth|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
+            echo "Current auth migration: "${mig_auth}
+            echo "Previous auth migration: << parameters.target_auth >>
             if [ $mig_auth -ne << parameters.target_auth >> ]
             then
               python poll_site/manage.py migrate auth << parameters.target_auth >>
@@ -90,6 +96,8 @@ commands:
 
             # Revert contenttypes
             mig_contenttypes=`python3 poll_site/manage.py showmigrations --list contenttypes|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
+            echo "Current contenttypes migration: "${mig_contenttypes}
+            echo "Previous contenttypes migration: << parameters.target_contenttypes >>
             if [ $mig_contenttypes -ne << parameters.target_contenttypes >> ]
             then
               python poll_site/manage.py migrate contenttypes << parameters.target_contenttypes >>
@@ -97,6 +105,8 @@ commands:
 
             # Revert sessions
             mig_sessions=`python3 poll_site/manage.py showmigrations --list sessions|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
+            echo "Current sessions migration: "${mig_sessions}
+            echo "Previous sessions migration: << parameters.target_sessions >>
             if [ $mig_sessions -ne << parameters.target_sessions >> ]
             then
               python poll_site/manage.py migrate sessions << parameters.target_sessions >>
