@@ -256,18 +256,19 @@ jobs:
 workflows:
   default:
     jobs:
-      - qa
-      - docker-build:
-          requires:
-            - qa
-      - docker-publish-latest:
-          requires:
-            - docker-build
-          filters:
-            branches:
-              only: master
-      - create-eks-cluster:
-          requires: [docker-publish-latest]
+#      - qa
+#      - docker-build:
+#          requires:
+#            - qa
+#      - docker-publish-latest:
+#          requires:
+#            - docker-build
+#          filters:
+#            branches:
+#              only: master
+      - create-eks-cluster
+#      - create-eks-cluster:
+#          requires: [docker-publish-latest]
 #      - run-migrations:
 #          requires: [create-eks-cluster]
 #      - deploy-docker:
