@@ -238,6 +238,7 @@ jobs:
             python3 poll_site/manage.py showmigrations --list contenttypes|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > lastmig_contenttypes.txt
             python3 poll_site/manage.py showmigrations --list sessions|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > lastmig_sessions.txt
 
+            find `pwd` -name lastmig\*.txt -print
             cat lastmig*.txt
 
             # Run migrate
