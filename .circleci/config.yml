@@ -296,8 +296,8 @@ jobs:
 #              --docker-email=$DOCKERHUB_EMAIL
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
-          resource-file-path: django-deployment.yml
-          resource-name: deployment/django-deployment
+          resource-file-path: django-polls-deployment.yml
+          resource-name: deployment/django-polls-deployment
       - run:
           name: Get pods
           command: |
