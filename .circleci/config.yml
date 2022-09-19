@@ -15,18 +15,18 @@ executors:
       - image: circleci/buildpack-deps:stretch
 
 commands:
-  destroy-eks-cluster:
-    description: Destroy eks cluster given a workflow ID
-    parameters:
-      workflow_id:
-        type: string
-        default: ${CIRCLE_WORKFLOW_ID:0:7}
-    when:
-      condition: on_fail
-      steps:
-        - aws-eks/delete-cluster:
-            aws-region: us-east-1
-            cluster-name: "eksctl-cluster-"<< parameters.workflow_id >>
+#  destroy-eks-cluster:
+#    description: Destroy eks cluster given a workflow ID
+#    parameters:
+#      workflow_id:
+#        type: string
+#        default: ${CIRCLE_WORKFLOW_ID:0:7}
+#    when:
+#      condition: on_fail
+#      steps:
+#        - aws-eks/delete-cluster:
+#            aws-region: us-east-1
+#            cluster-name: "eksctl-cluster-"<< parameters.workflow_id >>
 
   revert-migrations:
     description: revert last migration
@@ -172,8 +172,15 @@ jobs:
           aws-region: us-east-1
           cluster-name: "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}"
           tags: project=django_poll_app
-      # rollback on failure
-      - destroy-eks-cluster
+      - run:
+          name: test rollback
+          command: |
+            exit 1
+      # rollback cluster on failure
+      - aws-eks/delete-cluster:
+          when: on_fail
+          aws-region: us-east-1
+          cluster-name: "eksctl-cluster-"<< parameters.workflow_id >>
 
   run-migrations:
     docker:
@@ -239,7 +246,7 @@ jobs:
 
       # revert migrations and rollback on failure
       - revert-migrations
-      - destroy-eks-cluster
+      #- destroy-eks-cluster
 
 workflows:
   default:
