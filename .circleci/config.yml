@@ -53,7 +53,7 @@ commands:
       target_auth:
         type: string
         default: NOT_SET
-      target_contenttype:
+      target_contenttypes:
         type: string
         default: NOT_SET
       target_sessions:
@@ -256,7 +256,7 @@ jobs:
           target_polls: ${old_polls}
           target_admin: ${old_admin}
           target_auth: ${old_auth}
-          target_contenttype: ${old_contenttypes}
+          target_contenttypes: ${old_contenttypes}
           target_sessions: ${old_sessions}
       #- destroy-eks-cluster
 
