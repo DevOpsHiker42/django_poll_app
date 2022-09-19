@@ -310,7 +310,11 @@ jobs:
       - run:
           name: Expose app
           command: |
-            kubectl expose deployment/django-polls-deployment --type="NodePort" --port 8000
+            kubectl expose deployment/django-polls-deployment --type="NodePort" --port 8000 --name=django-polls-nodeport
+      - run:
+          name: Get service details
+          command: |
+            kubectl get service/django-polls-nodeport
 
       # revert migrations and rollback on failure
       #- revert-migrations
