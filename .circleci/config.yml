@@ -286,6 +286,11 @@ jobs:
           #cluster-name: eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}
           cluster-name: eksctl-cluster-064a8e2
           install-kubectl: true
+      - run:
+          name: Get cluster information
+          command: |
+            kubectl version
+            kubectl get nodes
 #      - run:
 #          name: Create dockercreds
 #          command: |
@@ -299,14 +304,13 @@ jobs:
           resource-file-path: django-polls-deployment.yml
           resource-name: deployment/django-polls-deployment
       - run:
-          name: Get pods
-          command: |
-            kubectl get pods
-      - run:
           name: Get deployments
           command: |
             kubectl get deployments
-
+      - run:
+          name: Expose app
+          command: |
+            kubectl expose deployment/django-polls-deployment --type="NodePort" --port 8000
 
       # revert migrations and rollback on failure
       #- revert-migrations
