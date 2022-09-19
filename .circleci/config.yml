@@ -64,6 +64,9 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
+
+            . venv/bin/activate
+
             # Revert polls
             mig_polls=`python3 poll_site/manage.py showmigrations --list polls|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
             if [ $mig_polls -ne << parameters.target_polls >> ]
