@@ -27,7 +27,8 @@ commands:
           when: on_fail
           command: |
             echo "Destroying eks cluster with ID: << parameters.workflow_id >> "
-            eksctl delete cluster --name "eksctl-cluster-"<< parameters.workflow_id >>
+            eksctl delete cluster --name "eksctl-cluster-"<< parameters.workflow_id >> \
+              --region=us-east-1
 
   revert-migrations:
     description: revert last migration
@@ -166,16 +167,19 @@ jobs:
 
   create-eks-cluster:
     docker:
-      - image: 'cimg/python:3.10'
+      - image: cimg/python:3.8.5
     steps:
       - checkout
-      # Run aws-eks/setup to install eksctl
-      - aws-eks/setup
       - aws-eks/create-cluster:
+          aws-region: us-east-1
           cluster-name: "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}"
           tags: project=django_poll_app
+      #- run:
+      #    name: test rollback
+      #    command: |
+      #      exit 1
 
-      # rollback on failure
+      # rollback cluster on failure
       - destroy-eks-cluster
 
   run-migrations:
@@ -247,19 +251,18 @@ jobs:
 workflows:
   default:
     jobs:
-#      - qa
-#      - docker-build:
-#          requires:
-#            - qa
-#      - docker-publish-latest:
-#          requires:
-#            - docker-build
-#          filters:
-#            branches:
-#              only: master
-#      - create-eks-cluster:
-      - create-eks-cluster
-#          requires: [docker-publish-latest]
+      - qa
+      - docker-build:
+          requires:
+            - qa
+      - docker-publish-latest:
+          requires:
+            - docker-build
+          filters:
+            branches:
+              only: master
+      - create-eks-cluster:
+          requires: [docker-publish-latest]
 #      - run-migrations:
 #          requires: [create-eks-cluster]
 #      - deploy-docker:
