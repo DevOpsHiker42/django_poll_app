@@ -14,6 +14,18 @@ executors:
       - image: circleci/buildpack-deps:stretch
 
 commands:
+  install-eksctl:
+    description: Install eksctl
+    steps:
+      - run:
+          # From: 
+          name: Install eksctl
+          command: |
+            echo "insecure" >> ~/.curlrc
+            curl --silent --location \
+              "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+            sudo mv /tmp/eksctl /usr/local/bin
+
   destroy-eks-cluster:
     description: Destroy eks cluster given a workflow ID
     parameters:
@@ -169,20 +181,14 @@ jobs:
       - image: cimg/python:3.8.5
     steps:
       - checkout
-      - run:
-          # From: 
-          name: Install eksctl
-          command: |
-            echo "insecure" >> ~/.curlrc
-            curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-            sudo mv /tmp/eksctl /usr/local/bin
-      - run:
-          name: Create cluster
-          command: |
-            eksctl create cluster --name "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --region=us-east-1 \
-              --tags project=django_poll_app
-            # exit 1
+      - install-eksctl
+      #- run:
+      #    name: Create cluster
+      #    command: |
+      #      eksctl create cluster --name "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
+      #        --region=us-east-1 \
+      #        --tags project=django_poll_app
+      #      # exit 1
 
       # rollback cluster on failure
       - destroy-eks-cluster
