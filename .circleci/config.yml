@@ -439,6 +439,8 @@ workflows:
             branches:
               only: master
       - create-eks-cluster:
+          requires:
+            - docker-publish-latest
           filters:
             branches:
               only: master
