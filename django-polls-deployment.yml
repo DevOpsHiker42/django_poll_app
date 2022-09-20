@@ -10,14 +10,14 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: django-polls-deployment
+      app: django-polls
   template:
     metadata:
       labels:
-        app: django-polls-deployment
+        app: django-polls
     spec:
       containers:
-        - name: django-polls-container
+        - name: django-polls
           image: devopshiker42/django-polls:latest
           ports:
             - containerPort: 8000

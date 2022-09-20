@@ -1,0 +1,38 @@
+Description: >
+  Cloudfront distribution for django-polls
+
+Parameters:
+  OriginURL:
+    Description: Origin URL
+    Type: String
+
+  WorkflowID:
+    Description: CircleCI Workflow ID
+    Type: String
+
+Resources:
+
+  DjangoPollsDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !Sub ${OriginURL}
+            Id: DjangoPollsCustomOrigin
+            CustomOriginConfig:
+              HTTPPort: '8000'
+              OriginProtocolPolicy: http-only
+        Enabled: True
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          ForwardedValues:
+            QueryString: False
+          TargetOriginId: webpage
+          ViewerProtocolPolicy: allow-all
+
+Outputs:
+  WorkflowID:
+    Value: !Sub ${WorkflowID}
+    Description: Circle CI Workflow ID for Django-Polls EKS Cluster
+    Export:
+      Name: WorkflowID

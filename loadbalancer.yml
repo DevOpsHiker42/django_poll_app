@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-polls-loadbalancer
+spec:
+  type: LoadBalancer
+  selector:
+    app: django-polls
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
