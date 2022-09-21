@@ -426,30 +426,29 @@ jobs:
 workflows:
   default:
     jobs:
-#      - qa
-#      - docker-build:
-#          requires:
-#            - qa
-#      - docker-publish-latest:
-#          requires:
-#            - docker-build
-#          filters:
-#            branches:
-#              only: master
-      - create-eks-cluster
-#      - create-eks-cluster:
-#          requires:
-#            - docker-publish-latest
-#          filters:
-#            branches:
-#              only: master
-#      - run-migrations:
-#          requires: [docker-publish-latest, create-eks-cluster]
-#      - deploy-to-eks:
-#          requires: [run-migrations]
-#      - smoke-test:
-#          requires: [deploy-to-eks]
-#      - cloudfront-update:
-#          requires: [smoke-test]
-#      - cleanup:
-#          requires: [cloudfront-update]
+      - qa
+      - docker-build:
+          requires:
+            - qa
+      - docker-publish-latest:
+          requires:
+            - docker-build
+          filters:
+            branches:
+              only: master
+      - create-eks-cluster:
+          requires:
+            - docker-publish-latest
+          filters:
+            branches:
+              only: master
+      - run-migrations:
+          requires: [docker-publish-latest, create-eks-cluster]
+      - deploy-to-eks:
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-to-eks]
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
