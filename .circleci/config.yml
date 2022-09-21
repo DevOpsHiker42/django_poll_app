@@ -273,7 +273,8 @@ jobs:
       - download-cache-dependencies
 
       - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}
+          cluster-name: eksctl-cluster-87c918a
+          #cluster-name: eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}
           install-kubectl: true
       - run:
           name: Get cluster information
@@ -308,7 +309,11 @@ jobs:
           name: Get service details
           command: |
             kubectl get service/django-polls-loadbalancer | awk {'printf("%-30s %-30s %-30s %-30s\n",$1,$2,$4,$5)'}
-            kubectl get service/django-polls-loadbalancer |  tail -1 | awk {'print $4'} > lb_address.txt
+            # Wait for external address - from:
+            # https://stackoverflow.com/questions/35179410/how-to-wait-until-kubernetes-assigned-an-external-ip-to-a-loadbalancer-service
+            until kubectl get service/django-polls-loadbalancer -o jsonpath='{.status.loadBalancer}' | grep "ingress"; do : ; done
+            kubectl get service/django-polls-loadbalancer -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' > lb_address.txt
+            cat lb_address.txt
       - persist_to_workspace:
           root: .
           paths:
@@ -422,29 +427,30 @@ jobs:
 workflows:
   default:
     jobs:
-      - qa
-      - docker-build:
-          requires:
-            - qa
-      - docker-publish-latest:
-          requires:
-            - docker-build
-          filters:
-            branches:
-              only: master
-      - create-eks-cluster:
-          requires:
-            - docker-publish-latest
-          filters:
-            branches:
-              only: master
-      - run-migrations:
-          requires: [docker-publish-latest, create-eks-cluster]
-      - deploy-to-eks:
-          requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-to-eks]
-      - cloudfront-update:
-          requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
+#      - qa
+#      - docker-build:
+#          requires:
+#            - qa
+#      - docker-publish-latest:
+#          requires:
+#            - docker-build
+#          filters:
+#            branches:
+#              only: master
+#      - create-eks-cluster:
+#          requires:
+#            - docker-publish-latest
+#          filters:
+#            branches:
+#              only: master
+#      - run-migrations:
+#          requires: [docker-publish-latest, create-eks-cluster]
+#      - deploy-to-eks:
+#          requires: [run-migrations]
+      - deploy-to-eks
+#      - smoke-test:
+#          requires: [deploy-to-eks]
+#      - cloudfront-update:
+#          requires: [smoke-test]
+#      - cleanup:
+#          requires: [cloudfront-update]
