@@ -301,10 +301,10 @@ jobs:
           name: Get pod details
           command: |
             kubectl get pods -l 'app=django-polls' -o wide | awk {'printf("%-30s %-30s %-30s\n",$1,$3,$6)'}
-      - run:
-          name: Expose app via load balancer service
-          command: |
-            kubectl create -f loadbalancer.yml
+#      - run:
+#          name: Expose app via load balancer service
+#          command: |
+#            kubectl create -f loadbalancer.yml
       - run:
           name: Get service details
           command: |
