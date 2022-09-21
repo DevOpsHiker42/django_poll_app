@@ -281,14 +281,14 @@ jobs:
           command: |
             kubectl version
             kubectl get nodes
-      - run:
-          name: Create dockercreds
-          command: |
-            kubectl create secret docker-registry dcreds \
-              --docker-server=https://index.docker.io/v1/ \
-              --docker-username=$DOCKERHUB_USERNAME \
-              --docker-password=$DOCKERHUB_PASSWORD \
-              --docker-email=$DOCKERHUB_EMAIL
+#      - run:
+#          name: Create dockercreds
+#          command: |
+#            kubectl create secret docker-registry dcreds \
+#              --docker-server=https://index.docker.io/v1/ \
+#              --docker-username=$DOCKERHUB_USERNAME \
+#              --docker-password=$DOCKERHUB_PASSWORD \
+#              --docker-email=$DOCKERHUB_EMAIL
       - kubernetes/create-or-update-resource:
           get-rollout-status: false
           resource-file-path: django-polls-deployment.yml
