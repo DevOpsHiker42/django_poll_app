@@ -336,12 +336,15 @@ jobs:
       - run:
           name: Smoke test
           command: |
+            # Get Pods to assist with debugging
+            kubectl get pods -l 'app=django-polls'
+            # Check URL with curl
             URL=`cat lb_address.txt`
             URL=${URL}:8000
             echo "URL:"${URL}
-            RESPONSE=`curl -s ${URL}`
+            RESPONSE=`curl -s ${URL} | grep polls`
             echo "RESPONSE:"${RESPONSE}
-            if [ -z "${RESPONSE}" ]
+            if [ -n "${RESPONSE}" ]
             then
               return 0
             else
