@@ -270,6 +270,8 @@ jobs:
           DOCKERHUB_EMAIL: $DOCKERHUB_EMAIL
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - install-eksctl
       - download-cache-dependencies
 
@@ -309,7 +311,7 @@ jobs:
           name: Get service details
           command: |
             kubectl get service/django-polls-loadbalancer | awk {'printf("%-30s %-30s %-30s %-30s\n",$1,$2,$4,$5)'}
-            kubectl get service/nginx-service-loadbalancer |  tail -1 | awk {'print $4'} > lb_address.txt
+            kubectl get service/django-polls-loadbalancer |  tail -1 | awk {'print $4'} > lb_address.txt
       - persist_to_workspace:
           root: .
           paths:
@@ -356,6 +358,8 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - install-eksctl
       - download-cache-dependencies
 
