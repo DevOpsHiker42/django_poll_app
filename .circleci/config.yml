@@ -79,7 +79,7 @@ commands:
             # Revert polls
             mig_polls=`python3 poll_site/manage.py showmigrations --list polls|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
             echo "Current polls migration: "${mig_polls}
-            last_polls=`cat last_polls.txt`
+            last_polls=`cat /tmp/workspace/last_polls.txt`
             echo "Previous polls migration: "${last_polls}
             if [ $mig_polls -ne $last_polls ]
             then
@@ -89,7 +89,7 @@ commands:
             # Revert admin
             mig_admin=`python3 poll_site/manage.py showmigrations --list admin|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
             echo "Current admin migration: "${mig_admin}
-            last_admin=`cat last_admin.txt`
+            last_admin=`cat /tmp/workspace/last_admin.txt`
             echo "Previous admin migration: "${last_admin}
             if [ $mig_admin -ne $last_admin ]
             then
@@ -99,7 +99,7 @@ commands:
             # Revert auth
             mig_auth=`python3 poll_site/manage.py showmigrations --list auth|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
             echo "Current auth migration: "${mig_auth}
-            last_auth=`cat last_auth.txt`
+            last_auth=`cat /tmp/workspace/last_auth.txt`
             echo "Previous auth migration: "${last_auth}
             if [ $mig_auth -ne $last_auth ]
             then
@@ -109,7 +109,7 @@ commands:
             # Revert contenttypes
             mig_contenttypes=`python3 poll_site/manage.py showmigrations --list contenttypes|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
             echo "Current contenttypes migration: "${mig_contenttypes}
-            last_contenttypes=`cat last_contenttypes.txt`
+            last_contenttypes=`cat /tmp/workspace/last_contenttypes.txt`
             echo "Previous contenttypes migration: "${last_contenttypes}
             if [ $mig_contenttypes -ne $last_contenttypes ]
             then
@@ -119,7 +119,7 @@ commands:
             # Revert sessions
             mig_sessions=`python3 poll_site/manage.py showmigrations --list sessions|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
             echo "Current sessions migration: "${mig_sessions}
-            last_sessions=`cat last_sessions.txt`
+            last_sessions=`cat /tmp/workspace/last_sessions.txt`
             echo "Previous sessions migration: "${last_sessions}
             if [ $mig_sessions -ne $last_sessions ]
             then
@@ -250,6 +250,7 @@ jobs:
 
             # Run migrate
             python3 poll_site/manage.py migrate
+            exit 1
 
       # revert migrations and rollback on failure
       - revert-migrations
@@ -294,7 +295,7 @@ jobs:
       - run:
           name: Get pod details
           command: |
-            kubectl get pods -l 'app=django-polls' -o wide | awk {'print $1" " $3 " " $6'} | column -t
+            kubectl get pods -l 'app=django-polls' -o wide | awk {'printf("%-30s %-30s %-30s\n",$1,$3,$6)'}
       - run:
           name: Expose app via load balancer service
           command: |
@@ -302,7 +303,7 @@ jobs:
       - run:
           name: Get service details
           command: |
-            kubectl get service/django-polls-loadbalancer |  awk {'print $1" " $2 " " $4 " " $5'} | column -t
+            kubectl get service/django-polls-loadbalancer | awk {'printf("%-30s %-30s %-30s %-30s\n",$1,$2,$4,$5)'}
             kubectl get service/nginx-service-loadbalancer |  tail -1 | awk {'print $4'} > lb_address.txt
       - persist_to_workspace:
           root: .
@@ -419,29 +420,30 @@ jobs:
 workflows:
   default:
     jobs:
-      - qa
-      - docker-build:
-          requires:
-            - qa
-      - docker-publish-latest:
-          requires:
-            - docker-build
-          filters:
-            branches:
-              only: master
-      - create-eks-cluster:
-          requires:
-            - docker-publish-latest
-          filters:
-            branches:
-              only: master
-      - run-migrations:
-          requires: [docker-publish-latest, create-eks-cluster]
-      - deploy-to-eks:
-          requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-to-eks]
-      - cloudfront-update:
-          requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
+#      - qa
+#      - docker-build:
+#          requires:
+#            - qa
+#      - docker-publish-latest:
+#          requires:
+#            - docker-build
+#          filters:
+#            branches:
+#              only: master
+#      - create-eks-cluster:
+#          requires:
+#            - docker-publish-latest
+#          filters:
+#            branches:
+#              only: master
+      - run-migrations
+#      - run-migrations:
+#          requires: [docker-publish-latest, create-eks-cluster]
+#      - deploy-to-eks:
+#          requires: [run-migrations]
+#      - smoke-test:
+#          requires: [deploy-to-eks]
+#      - cloudfront-update:
+#          requires: [smoke-test]
+#      - cleanup:
+#          requires: [cloudfront-update]
