@@ -308,12 +308,13 @@ jobs:
       - run:
           name: Get service details
           command: |
-            kubectl get service/django-polls-loadbalancer | awk {'printf("%-30s %-30s %-30s %-30s\n",$1,$2,$4,$5)'}
             # Wait for external address - from:
             # https://stackoverflow.com/questions/35179410/how-to-wait-until-kubernetes-assigned-an-external-ip-to-a-loadbalancer-service
             until kubectl get service/django-polls-loadbalancer -o jsonpath='{.status.loadBalancer}' | grep "ingress"; do : ; done
-            kubectl get service/django-polls-loadbalancer -o jsonpath='{.status.loadBalancer.ingress[0].ip}' > lb_address.txt
+            kubectl get service/django-polls-loadbalancer -o jsonpath='{.status.loadBalancer.ingress[].hostname}' > lb_address.txt
+            kubectl get service/django-polls-loadbalancer | awk {'printf("%-30s %-30s %-30s %-30s\n",$1,$2,$4,$5)'}
             cat lb_address.txt
+            curl -m3 -v `cat lb address.txt`
       - persist_to_workspace:
           root: .
           paths:
