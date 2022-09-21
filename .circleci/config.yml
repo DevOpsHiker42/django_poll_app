@@ -256,7 +256,6 @@ jobs:
 
             # Run migrate
             python3 poll_site/manage.py migrate
-            exit 1
 
       # revert migrations and rollback on failure
       - revert-migrations
@@ -330,14 +329,14 @@ jobs:
       - download-cache-dependencies
 
       - attach_workspace:
-          at: /tmp/workspace
+          at: .
       - run:
           name: Install Curl
           command: apk add --update curl
       - run:
           name: Smoke test
           command: |
-            URL=`cat /tmp/workspace/lb_address.txt`
+            URL=`cat lb_address.txt`
             RESPONSE=`curl -s ${URL}`
             echo "URL:"${URL}
             echo "RESPONSE:"${RESPONSE}
@@ -361,7 +360,7 @@ jobs:
       - download-cache-dependencies
 
       - attach_workspace:
-          at: /tmp/workspace
+          at: .
       - run:
           name: Install dependencies
           command: |
@@ -377,7 +376,7 @@ jobs:
       - run:
           name: Update cloudfront distribution
           command: |
-            URL=`cat /tmp/workspace/lb_address.txt`
+            URL=`cat lb_address.txt`
             aws cloudformation deploy \
               --template-file cloudfront.yml \
               --stack-name DjangoPollsCloudFrontStack \
@@ -399,11 +398,11 @@ jobs:
       - checkout
       - install-eksctl
       - attach_workspace:
-          at: /tmp/workspace
+          at: .
       - run:
           name: Remove old cluster
           command: |
-            export OldWorkflowID=`cat /tmp/workspace/OldWorkflowID.txt`
+            export OldWorkflowID=`cat OldWorkflowID.txt`
             echo "Old workflow ID: "${OldWorkflowID}
             # Check if the cluster exists
             export OLDCLUSTER=`eksctl get clusters|grep ${OldWorkflowID}`
@@ -426,30 +425,29 @@ jobs:
 workflows:
   default:
     jobs:
-#      - qa
-#      - docker-build:
-#          requires:
-#            - qa
-#      - docker-publish-latest:
-#          requires:
-#            - docker-build
-#          filters:
-#            branches:
-#              only: master
-#      - create-eks-cluster:
-#          requires:
-#            - docker-publish-latest
-#          filters:
-#            branches:
-#              only: master
-      - run-migrations
-#      - run-migrations:
-#          requires: [docker-publish-latest, create-eks-cluster]
-#      - deploy-to-eks:
-#          requires: [run-migrations]
-#      - smoke-test:
-#          requires: [deploy-to-eks]
-#      - cloudfront-update:
-#          requires: [smoke-test]
-#      - cleanup:
-#          requires: [cloudfront-update]
+      - qa
+      - docker-build:
+          requires:
+            - qa
+      - docker-publish-latest:
+          requires:
+            - docker-build
+          filters:
+            branches:
+              only: master
+      - create-eks-cluster:
+          requires:
+            - docker-publish-latest
+          filters:
+            branches:
+              only: master
+      - run-migrations:
+          requires: [docker-publish-latest, create-eks-cluster]
+      - deploy-to-eks:
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-to-eks]
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
