@@ -15,6 +15,28 @@ executors:
       - image: circleci/buildpack-deps:stretch
 
 commands:
+  download-cache-dependencies:
+    description: Download and cache dependencies
+    steps:
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "requirements.txt" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run:
+          name: install dependencies
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            make install
+            # Install hadolint
+            sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
+            sudo chmod +x /bin/hadolint
+      - save_cache:
+          paths:
+            - ./venv
+          key: v1-dependencies-{{ checksum "requirements.txt" }}
+
   install-eksctl:
     description: Install eksctl
     steps:
@@ -34,6 +56,7 @@ commands:
         type: string
         default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
+      - install-eksctl
       - run:
           name: destroy cluster
           when: on_fail
@@ -114,28 +137,7 @@ jobs:
 
     steps:
       - checkout
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "requirements.txt" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-
-      - run:
-          name: install dependencies
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            make install
-            # Install hadolint
-            sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
-            sudo chmod +x /bin/hadolint
-
-      - save_cache:
-          paths:
-            - ./venv
-          key: v1-dependencies-{{ checksum "requirements.txt" }}
+      - download-cache-dependencies
 
       - run:
           name: run lint
@@ -212,26 +214,8 @@ jobs:
 
     steps:
       - checkout
+      - download-cache-dependencies
       - install-eksctl
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "requirements.txt" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-
-      - run:
-          name: install dependencies
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            make install
-
-      - save_cache:
-          paths:
-            - ./venv
-          key: v1-dependencies-{{ checksum "requirements.txt" }}
 
       - run:
           name: Get migrations already applied
@@ -280,6 +264,9 @@ jobs:
           DOCKERHUB_EMAIL: $DOCKERHUB_EMAIL
     steps:
       - checkout
+      - install-eksctl
+      - download-cache-dependencies
+
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}
           install-kubectl: true
@@ -332,6 +319,9 @@ jobs:
       - image: alpine:latest
     steps:
       - checkout
+      - install-eksctl
+      - download-cache-dependencies
+
       - attach_workspace:
           at: /tmp/workspace
       - run:
@@ -360,6 +350,9 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - install-eksctl
+      - download-cache-dependencies
+
       - attach_workspace:
           at: /tmp/workspace
       - run:
