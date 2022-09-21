@@ -74,12 +74,9 @@ commands:
           when: on_fail
           command: |
 
-            echo "Before venv"
-            ls -ltr
-
             . venv/bin/activate
 
-            echo "After venv"
+            pwd
             ls -ltr
 
             # Revert polls
@@ -323,8 +320,7 @@ jobs:
 
   smoke-test:
     docker:
-      # Lightweight Docker image
-      - image: alpine:latest
+      - image: cimg/python:3.8.5
     steps:
       - checkout
       - install-eksctl
@@ -332,9 +328,6 @@ jobs:
 
       - attach_workspace:
           at: .
-      - run:
-          name: Install Curl
-          command: apk add --update curl
       - run:
           name: Smoke test
           command: |
