@@ -76,6 +76,8 @@ commands:
 
             . venv/bin/activate
 
+            ls -ltr /tmp/workspace
+
             # Revert polls
             mig_polls=`python3 poll_site/manage.py showmigrations --list polls|grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}'`
             echo "Current polls migration: "${mig_polls}
@@ -233,6 +235,8 @@ jobs:
               grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > last_contenttypes.txt
             python3 poll_site/manage.py showmigrations --list sessions| \
               grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > last_sessions.txt
+
+            ls -ltr
 
       - persist_to_workspace:
           root: .
