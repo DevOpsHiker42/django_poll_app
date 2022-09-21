@@ -327,8 +327,8 @@ jobs:
       - image: cimg/python:3.8.5
     steps:
       - checkout
-      - install-eksctl
       - download-cache-dependencies
+      - install-eksctl
 
       - attach_workspace:
           at: .
