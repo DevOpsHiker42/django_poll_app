@@ -314,7 +314,9 @@ jobs:
             kubectl get service/django-polls-loadbalancer -o jsonpath='{.status.loadBalancer.ingress[].hostname}' > lb_address.txt
             kubectl get service/django-polls-loadbalancer | awk {'printf("%-30s %-30s %-30s %-30s\n",$1,$2,$4,$5)'}
             cat lb_address.txt
-            curl -m3 -v `cat lb_address.txt`
+            address=`cat lb_address.txt`
+            address=${address}:8000
+            curl -s $address
       - persist_to_workspace:
           root: .
           paths:
@@ -338,6 +340,7 @@ jobs:
           name: Smoke test
           command: |
             URL=`cat lb_address.txt`
+            URL=${URL}:8000
             RESPONSE=`curl -s ${URL}`
             echo "URL:"${URL}
             echo "RESPONSE:"${RESPONSE}
