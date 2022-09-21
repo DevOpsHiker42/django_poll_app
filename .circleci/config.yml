@@ -317,7 +317,7 @@ jobs:
             cat lb_address.txt
             address=`cat lb_address.txt`
             address=${address}:8000
-            $asterisks = `echo $address | grep \*`
+            asterisks = `echo $address | grep \*`
             if [ -n "${asterisks}" ]
             then
               echo "IP contains asterisks!"
