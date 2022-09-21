@@ -56,8 +56,10 @@ commands:
         type: string
         default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
+      - install-eksctl
       - run:
           name: destroy cluster
+          when: on_fail
           command: |
             echo "Destroying eks cluster with ID: << parameters.workflow_id >> "
             eksctl delete cluster --name "eksctl-cluster-"<< parameters.workflow_id >>
@@ -67,6 +69,7 @@ commands:
     steps:
       - run:
           name: Revert migrations
+          when: on_fail
           command: |
             . venv/bin/activate
 
@@ -199,11 +202,7 @@ jobs:
               --tags project=django-polls
 
       # rollback cluster on failure
-      - when:
-          condition: on_fail
-          steps:
-            - install-eksctl
-            - destroy-eks-cluster
+      - destroy-eks-cluster
 
   run-migrations:
     docker:
@@ -253,12 +252,8 @@ jobs:
             python3 poll_site/manage.py migrate
 
       # revert migrations and rollback on failure
-      - when:
-          condition: on_fail
-          steps:
-            - revert-migrations
-            - install-eksctl
-            - destroy-eks-cluster
+      - revert-migrations
+      - destroy-eks-cluster
 
   deploy-to-eks:
     docker:
@@ -317,12 +312,8 @@ jobs:
             - ./lb_address.txt
 
       # revert migrations and rollback on failure
-      - when:
-          condition: on_fail
-          steps:
-            - revert-migrations
-            - install-eksctl
-            - destroy-eks-cluster
+      - revert-migrations
+      - destroy-eks-cluster
 
   smoke-test:
     docker:
@@ -349,12 +340,8 @@ jobs:
             fi
 
       # revert migrations and rollback on failure
-      - when:
-          condition: on_fail
-          steps:
-            - revert-migrations
-            - install-eksctl
-            - destroy-eks-cluster
+      - revert-migrations
+      - destroy-eks-cluster
 
   cloudfront-update:
     docker:
@@ -395,12 +382,8 @@ jobs:
             - ./OldWorkflowID.txt
 
       # revert migrations and rollback on failure
-      - when:
-          condition: on_fail
-          steps:
-            - revert-migrations
-            - install-eksctl
-            - destroy-eks-cluster
+      - revert-migrations
+      - destroy-eks-cluster
 
   cleanup:
     docker:
