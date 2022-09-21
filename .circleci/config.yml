@@ -56,11 +56,14 @@ commands:
         type: string
         default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
-      - install-eksctl
       - run:
           name: destroy cluster
           when: on_fail
           command: |
+            echo "insecure" >> ~/.curlrc
+            curl --silent --location \
+              "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+            sudo mv /tmp/eksctl /usr/local/bin
             echo "Destroying eks cluster with ID: << parameters.workflow_id >> "
             eksctl delete cluster --name "eksctl-cluster-"<< parameters.workflow_id >>
 
