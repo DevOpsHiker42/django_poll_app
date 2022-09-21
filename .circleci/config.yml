@@ -135,7 +135,7 @@ jobs:
         environment:
           sky: $sky
 
-    working_directory: ~/repo
+    working_directory: ~/project
 
     steps:
       - checkout
@@ -212,7 +212,7 @@ jobs:
         environment:
           sky: $sky
 
-    working_directory: ~/repo
+    working_directory: ~/project
 
     steps:
       - checkout
@@ -226,15 +226,15 @@ jobs:
 
             # Get last migrations already applied in case we need to roll back
             python3 poll_site/manage.py showmigrations --list polls| \
-              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > last_polls.txt
+              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > ./last_polls.txt
             python3 poll_site/manage.py showmigrations --list admin| \
-              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > last_admin.txt
+              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > ./last_admin.txt
             python3 poll_site/manage.py showmigrations --list auth| \
-              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > last_auth.txt
+              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > ./last_auth.txt
             python3 poll_site/manage.py showmigrations --list contenttypes| \
-              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > last_contenttypes.txt
+              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > ./last_contenttypes.txt
             python3 poll_site/manage.py showmigrations --list sessions| \
-              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > last_sessions.txt
+              grep "\[X\]"|tail -1|awk '{print substr($2,1,4)}' > ./last_sessions.txt
 
             ls -ltr
 
