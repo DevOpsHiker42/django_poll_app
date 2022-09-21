@@ -338,8 +338,8 @@ jobs:
           command: |
             URL=`cat lb_address.txt`
             URL=${URL}:8000
-            RESPONSE=`curl -s ${URL}`
             echo "URL:"${URL}
+            RESPONSE=`curl -s ${URL}`
             echo "RESPONSE:"${RESPONSE}
             if [ -z "${RESPONSE}" ]
             then
