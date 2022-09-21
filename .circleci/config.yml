@@ -74,8 +74,12 @@ commands:
           when: on_fail
           command: |
 
+            echo "Before venv"
+            ls -ltr /tmp/workspace
+
             . venv/bin/activate
 
+            echo "After venv"
             ls -ltr /tmp/workspace
 
             # Revert polls
