@@ -316,7 +316,7 @@ jobs:
             kubectl describe service django-polls-loadbalancer
             cat lb_address.txt
             address=`cat lb_address.txt`
-            address=${address}:8000
+            address=http:\\${address}:8000
             curl -s $address
       - persist_to_workspace:
           root: .
