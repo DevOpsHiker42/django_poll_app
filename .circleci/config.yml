@@ -316,7 +316,14 @@ jobs:
             kubectl describe service django-polls-loadbalancer
             cat lb_address.txt
             address=`cat lb_address.txt`
-            address=http:\\${address}:8000
+            address=${address}:8000
+            $asterisks = `echo $address | grep \*`
+            if [ -n "${asterisks}" ]
+            then
+              echo "IP contains asterisks!"
+            else
+              echo "IP has no asterisks"
+            fi
             curl -s $address
       - persist_to_workspace:
           root: .
