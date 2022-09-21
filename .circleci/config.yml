@@ -315,16 +315,15 @@ jobs:
             kubectl get service/django-polls-loadbalancer | awk {'printf("%-30s %-30s %-30s %-30s\n",$1,$2,$4,$5)'}
             kubectl describe service django-polls-loadbalancer
             cat lb_address.txt
-            address=`cat lb_address.txt`
-            address=${address}:8000
-            asterisks=`echo $address | grep \*`
+            export lb_address=`cat lb_address.txt`
+            export asterisks=`echo $lb_address | grep \*`
             if [ -n "${asterisks}" ]
             then
               echo "IP contains asterisks!"
             else
               echo "IP has no asterisks"
             fi
-            curl -s $address
+            curl -s ${lb_address}:8000
       - persist_to_workspace:
           root: .
           paths:
