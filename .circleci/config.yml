@@ -203,7 +203,6 @@ jobs:
   docker-publish-ecr:
     environment:
       IMAGE_NAME: devopshiker42/django-polls
-      private_ecr_registry: $private_ecr_registry
     docker:
       - image: cimg/python:3.8.5
     steps:
