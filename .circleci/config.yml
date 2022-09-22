@@ -187,9 +187,9 @@ jobs:
               -e static_secret_key \
               $IMAGE_NAME:latest
 
-              sleep 1
-
               docker ps
+
+              sleep 10
 
               curl -s http://0.0.0.0:8000
       - run:
