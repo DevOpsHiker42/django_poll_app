@@ -318,7 +318,7 @@ jobs:
           name: Deploy app
           command: |
             kubectl apply -f django-polls-deployment.yml
-            export lastpod = `kubectl get pods | tail -1 | awk '{print $1}'`
+            export lastpod=`kubectl get pods | tail -1 | awk '{print $1}'`
             kubectl logs $lastpod
             kubectl get deployments
       - run:
@@ -345,8 +345,8 @@ jobs:
             - ./lb_address.txt
 
       # revert migrations and rollback on failure
-      - revert-migrations
-      - destroy-eks-cluster
+      #- revert-migrations
+      #- destroy-eks-cluster
 
   smoke-test:
     docker:
