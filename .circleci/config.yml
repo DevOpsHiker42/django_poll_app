@@ -472,12 +472,12 @@ workflows:
 #      - docker-build:
 #          requires:
 #            - qa
-#      - docker-publish-ecr:
-#          requires:
-#            - docker-build
-#          filters:
-#            branches:
-#              only: master
+      - docker-publish-ecr:
+          requires:
+            - docker-build
+          filters:
+            branches:
+              only: master
 #      - create-eks-cluster:
 #          requires:
 #            - docker-publish-ecr
