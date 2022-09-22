@@ -185,7 +185,7 @@ jobs:
               -e static_bucket_name \
               -e static_access_key \
               -e static_secret_key \
-              django-polls
+              $IMAGE_NAME:latest
 
               sleep 1
 
@@ -473,16 +473,17 @@ jobs:
 workflows:
   default:
     jobs:
-      - qa
-      - docker-build:
-          requires:
-            - qa
-      - docker-publish-ecr:
-          requires:
-            - docker-build
-          filters:
-            branches:
-              only: master
+#      - qa
+      - docker-build
+#      - docker-build:
+#          requires:
+#            - qa
+#      - docker-publish-ecr:
+#          requires:
+#            - docker-build
+#          filters:
+#            branches:
+#              only: master
 #      - create-eks-cluster:
 #          requires:
 #            - docker-publish-ecr
