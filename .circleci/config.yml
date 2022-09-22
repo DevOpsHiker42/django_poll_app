@@ -7,13 +7,6 @@ orbs:
   aws-eks: circleci/aws-eks@2.2.0
   kubernetes: circleci/kubernetes@1.3.1
 
-executors:
-  docker-publisher:
-    environment:
-      IMAGE_NAME: devopshiker42/django-polls
-    docker:
-      - image: circleci/buildpack-deps:stretch
-
 commands:
   download-cache-dependencies:
     description: Download and cache dependencies
@@ -161,7 +154,16 @@ jobs:
             make migrationcheck
 
   docker-build:
-    executor: docker-publisher
+    docker:
+      - image: circleci/buildpack-deps:stretch
+        environment:
+          IMAGE_NAME: devopshiker42/django-polls
+          sky: $sky
+          db_endpoint: $db_endpoint
+          pgpass: $pgpass
+          static_bucket_name: $static_bucket_name
+          static_access_key: $static_access_key
+          static_secret_key: $static_secret_key
     steps:
       - checkout
       - setup_remote_docker
@@ -170,6 +172,26 @@ jobs:
           command: |
             docker build -t $IMAGE_NAME:latest .
       - run:
+          name: Test Docker image
+          command: |
+
+            # See example at:
+            # https://github.com/CircleCI-Public/circleci-demo-aws-ecs-ecr/blob/without_orbs/.circleci/config.yml
+
+            docker run -p -d 8000:8000 \
+              -e db_endpoint \
+              -e pgpass \
+              -e sky \
+              -e static_bucket_name \
+              -e static_access_key \
+              -e static_secret_key \
+              django-polls
+
+              sleep 10
+
+              docker run --network container:built-image appropriate/curl --retry 10 \
+                --retry-connrefused http://localhost:8000 | grep "polls"
+      - run:
           name: Archive Docker image
           command: docker save -o image.tar $IMAGE_NAME
       - persist_to_workspace:
@@ -177,20 +199,30 @@ jobs:
           paths:
             - ./image.tar
 
-  docker-publish-latest:
-    executor: docker-publisher
+  docker-publish-ecr:
+    environment:
+      IMAGE_NAME: devopshiker42/django-polls
+    docker:
+      - image: circleci/buildpack-deps:stretch
     steps:
       - attach_workspace:
           at: /tmp/workspace
       - setup_remote_docker
       - run:
+          name: Install AWS CLI
+          command: pip install awscli
+      - run:
           name: Load archived Docker image
           command: docker load -i /tmp/workspace/image.tar
       - run:
-          name: Publish Docker Image to Docker Hub
+          name: Publish Docker Image to ECR
           command: |
-            echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            docker push $IMAGE_NAME:latest
+            export region="us-east-1"
+            export private_registry="429593792117.dkr.ecr.us-east-1.amazonaws.com"
+            export repoURI="429593792117.dkr.ecr.us-east-1.amazonaws.com/django-polls-repo"
+            docker tag $IMAGE_NAME $repoURI
+            docker login -u AWS -p $(aws ecr get-login-password --region $region) $private_registry
+            docker push $repoURI
 
   create-eks-cluster:
     docker:
@@ -438,24 +470,24 @@ workflows:
       - docker-build:
           requires:
             - qa
-      - docker-publish-latest:
+      - docker-publish-ecr:
           requires:
             - docker-build
           filters:
             branches:
               only: master
-      - create-eks-cluster:
-          requires:
-            - docker-publish-latest
-          filters:
-            branches:
-              only: master
-      - run-migrations:
-          requires: [docker-publish-latest, create-eks-cluster]
-      - deploy-to-eks:
-          requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-to-eks]
+#      - create-eks-cluster:
+#          requires:
+#            - docker-publish-ecr
+#          filters:
+#            branches:
+#              only: master
+#      - run-migrations:
+#          requires: [docker-publish-ecr, create-eks-cluster]
+#      - deploy-to-eks:
+#          requires: [run-migrations]
+#      - smoke-test:
+#          requires: [deploy-to-eks]
 #      - cloudfront-update:
 #          requires: [smoke-test]
 #      - cleanup:
