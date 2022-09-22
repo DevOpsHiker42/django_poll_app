@@ -203,8 +203,8 @@ jobs:
   docker-publish-ecr:
     environment:
       IMAGE_NAME: devopshiker42/django-polls
+      private_ecr_registry: $private_ecr_registry
     docker:
-      #- image: circleci/buildpack-deps:stretch
       - image: cimg/python:3.8.5
     steps:
       - setup_remote_docker
@@ -220,8 +220,7 @@ jobs:
           name: Publish Docker Image to ECR
           command: |
             export region="us-east-1"
-            export private_registry="429593792117.dkr.ecr.us-east-1.amazonaws.com"
-            export repoURI="429593792117.dkr.ecr.us-east-1.amazonaws.com/django-polls-repo"
+            export repoURI=${private_ecr_registry}"/django-polls-repo"
             docker tag $IMAGE_NAME $repoURI
             docker login -u AWS -p $(aws ecr get-login-password --region $region) $private_registry
             docker push $repoURI
@@ -237,6 +236,7 @@ jobs:
           command: |
             eksctl create cluster --name "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
               --nodes=1 \
+              --node-type t2.micro \
               --tags project=django-polls
 
       # rollback cluster on failure
@@ -315,16 +315,8 @@ jobs:
           command: |
             kubectl version
             kubectl get nodes
-      - run:
-          name: Create dockercreds
-          command: |
-            kubectl create secret docker-registry dcreds \
-              --docker-server=https://index.docker.io/v1/ \
-              --docker-username=$DOCKERHUB_USERNAME \
-              --docker-password=$DOCKERHUB_PASSWORD \
-              --docker-email=$DOCKERHUB_EMAIL
       - kubernetes/create-or-update-resource:
-          get-rollout-status: false
+          get-rollout-status: true
           resource-file-path: django-polls-deployment.yml
           resource-name: deployment/django-polls-deployment
       - run:
@@ -468,29 +460,28 @@ jobs:
 workflows:
   default:
     jobs:
-#      - qa
-      - docker-build
-#      - docker-build:
-#          requires:
-#            - qa
+      - qa
+      - docker-build:
+          requires:
+            - qa
       - docker-publish-ecr:
           requires:
             - docker-build
           filters:
             branches:
               only: master
-#      - create-eks-cluster:
-#          requires:
-#            - docker-publish-ecr
-#          filters:
-#            branches:
-#              only: master
-#      - run-migrations:
-#          requires: [docker-publish-ecr, create-eks-cluster]
-#      - deploy-to-eks:
-#          requires: [run-migrations]
-#      - smoke-test:
-#          requires: [deploy-to-eks]
+      - create-eks-cluster:
+          requires:
+            - docker-publish-ecr
+          filters:
+            branches:
+              only: master
+      - run-migrations:
+          requires: [docker-publish-ecr, create-eks-cluster]
+      - deploy-to-eks:
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-to-eks]
 #      - cloudfront-update:
 #          requires: [smoke-test]
 #      - cleanup:
