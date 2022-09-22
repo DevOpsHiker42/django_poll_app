@@ -297,10 +297,6 @@ jobs:
           name: Get deployments
           command: |
             kubectl get deployments
-      - run:
-          name: Get pod details
-          command: |
-            kubectl get pods -l 'app=django-polls' -o wide | awk {'printf("%-30s %-30s %-30s\n",$1,$3,$6)'}
 #      - run:
 #          name: Expose app via load balancer service
 #          command: |
@@ -314,6 +310,10 @@ jobs:
             kubectl get service/django-polls-loadbalancer -o jsonpath='{.status.loadBalancer.ingress[].hostname}' > lb_address.txt
             kubectl get service/django-polls-loadbalancer | awk {'printf("%-30s %-30s %-30s %-30s\n",$1,$2,$4,$5)'}
             kubectl describe service django-polls-loadbalancer
+      - run:
+          name: Get pod details
+          command: |
+            kubectl get pods -l 'app=django-polls' -o wide | awk {'printf("%-30s %-30s %-30s\n",$1,$3,$6)'}
       - persist_to_workspace:
           root: .
           paths:
@@ -336,8 +336,6 @@ jobs:
       - run:
           name: Smoke test
           command: |
-            # Get Pods to assist with debugging
-            kubectl get pods -l 'app=django-polls'
             # Check URL with curl
             URL=`cat lb_address.txt`
             URL=${URL}:8000
