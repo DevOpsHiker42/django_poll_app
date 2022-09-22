@@ -198,11 +198,14 @@ jobs:
     steps:
       - checkout
       - install-eksctl
-      - run:
-          name: Create cluster
-          command: |
-            eksctl create cluster --name "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --tags project=django-polls
+      - aws-eks/create-cluster:
+          cluster-name: eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}
+          tags: project=django-polls
+#      - run:
+#          name: Create cluster
+#          command: |
+#            eksctl create cluster --name "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
+#              --tags project=django-polls
 
       # rollback cluster on failure
       - destroy-eks-cluster
@@ -273,22 +276,21 @@ jobs:
       - download-cache-dependencies
 
       - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: eksctl-cluster-87c918a
-          #cluster-name: eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}
+          cluster-name: eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}
           install-kubectl: true
       - run:
           name: Get cluster information
           command: |
             kubectl version
             kubectl get nodes
-#      - run:
-#          name: Create dockercreds
-#          command: |
-#            kubectl create secret docker-registry dcreds \
-#              --docker-server=https://index.docker.io/v1/ \
-#              --docker-username=$DOCKERHUB_USERNAME \
-#              --docker-password=$DOCKERHUB_PASSWORD \
-#              --docker-email=$DOCKERHUB_EMAIL
+      - run:
+          name: Create dockercreds
+          command: |
+            kubectl create secret docker-registry dcreds \
+              --docker-server=https://index.docker.io/v1/ \
+              --docker-username=$DOCKERHUB_USERNAME \
+              --docker-password=$DOCKERHUB_PASSWORD \
+              --docker-email=$DOCKERHUB_EMAIL
       - kubernetes/create-or-update-resource:
           get-rollout-status: false
           resource-file-path: django-polls-deployment.yml
@@ -301,10 +303,10 @@ jobs:
           name: Get deployments
           command: |
             kubectl get deployments
-#      - run:
-#          name: Expose app via load balancer service
-#          command: |
-#            kubectl create -f loadbalancer.yml
+      - run:
+          name: Expose app via load balancer service
+          command: |
+            kubectl create -f loadbalancer.yml
       - run:
           name: Get service details
           command: |
@@ -434,27 +436,26 @@ jobs:
 workflows:
   default:
     jobs:
-#      - qa
-#      - docker-build:
-#          requires:
-#            - qa
-#      - docker-publish-latest:
-#          requires:
-#            - docker-build
-#          filters:
-#            branches:
-#              only: master
-#      - create-eks-cluster:
-#          requires:
-#            - docker-publish-latest
-#          filters:
-#            branches:
-#              only: master
-#      - run-migrations:
-#          requires: [docker-publish-latest, create-eks-cluster]
-#      - deploy-to-eks:
-#          requires: [run-migrations]
-      - deploy-to-eks
+      - qa
+      - docker-build:
+          requires:
+            - qa
+      - docker-publish-latest:
+          requires:
+            - docker-build
+          filters:
+            branches:
+              only: master
+      - create-eks-cluster:
+          requires:
+            - docker-publish-latest
+          filters:
+            branches:
+              only: master
+      - run-migrations:
+          requires: [docker-publish-latest, create-eks-cluster]
+      - deploy-to-eks:
+          requires: [run-migrations]
       - smoke-test:
           requires: [deploy-to-eks]
 #      - cloudfront-update:
