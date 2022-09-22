@@ -178,7 +178,7 @@ jobs:
             # See example at:
             # https://github.com/CircleCI-Public/circleci-demo-aws-ecs-ecr/blob/without_orbs/.circleci/config.yml
 
-            docker run -p -d 8000:8000 \
+            docker run -d -p 8000:8000 \
               -e db_endpoint \
               -e pgpass \
               -e sky \
