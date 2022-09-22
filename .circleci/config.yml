@@ -220,9 +220,10 @@ jobs:
           name: Publish Docker Image to ECR
           command: |
             export region="us-east-1"
-            export repoURI=${private_ecr_registry}"/django-polls-repo"
+            export repoURI=${private_ecr_registry}/django-polls-repo
+            echo $repoURI
             docker tag $IMAGE_NAME $repoURI
-            docker login -u AWS -p $(aws ecr get-login-password --region $region) $private_registry
+            docker login -u AWS -p $(aws ecr get-login-password --region $region) $private_ecr_registry
             docker push $repoURI
 
   create-eks-cluster:
@@ -460,10 +461,11 @@ jobs:
 workflows:
   default:
     jobs:
-      - qa
-      - docker-build:
-          requires:
-            - qa
+#      - qa
+#      - docker-build:
+#          requires:
+#            - qa
+      - docker-build
       - docker-publish-ecr:
           requires:
             - docker-build
