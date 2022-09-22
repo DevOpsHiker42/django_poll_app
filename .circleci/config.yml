@@ -207,6 +207,10 @@ jobs:
       #- image: circleci/buildpack-deps:stretch
       - image: amazon/aws-cli
     steps:
+      - run:
+          name: Install dependencies
+          command: |
+            yum install -y tar gzip
       - attach_workspace:
           at: /tmp/workspace
       - setup_remote_docker
