@@ -475,7 +475,7 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-to-eks]
-#      - cloudfront-update:
-#          requires: [smoke-test]
-#      - cleanup:
-#          requires: [cloudfront-update]
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
