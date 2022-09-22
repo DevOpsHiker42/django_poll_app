@@ -187,11 +187,11 @@ jobs:
               -e static_secret_key \
               $IMAGE_NAME:latest
 
-              docker ps
+            docker ps
 
-              sleep 10
+            sleep 10
 
-              curl -s http://0.0.0.0:8000
+            ssh remote-docker curl -s http://0.0.0.0:8000
       - run:
           name: Archive Docker image
           command: docker save -o image.tar $IMAGE_NAME
