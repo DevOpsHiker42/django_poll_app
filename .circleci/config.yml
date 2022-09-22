@@ -187,10 +187,17 @@ jobs:
               -e static_secret_key \
               django-polls
 
-              sleep 10
+              sleep 1
 
-              docker run --network container:built-image appropriate/curl --retry 10 \
-                --retry-connrefused http://localhost:8000 | grep "polls"
+              URL=localhost:8000
+              `curl -s ${URL} | grep polls`
+              echo "RESPONSE:"${RESPONSE}
+              if [ -n "${RESPONSE}" ]
+              then
+                return 0
+              else
+                return 1
+              fi
       - run:
           name: Archive Docker image
           command: docker save -o image.tar $IMAGE_NAME
