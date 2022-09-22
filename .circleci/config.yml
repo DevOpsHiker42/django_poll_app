@@ -321,6 +321,7 @@ jobs:
             export lastpod=`kubectl get pods | tail -1 | awk '{print $1}'`
             kubectl logs $lastpod
             kubectl get deployments
+            kubectl describe django-polls-deployment
       - run:
           name: Expose app via load balancer service
           command: |
