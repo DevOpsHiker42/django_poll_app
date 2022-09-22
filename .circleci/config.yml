@@ -189,8 +189,10 @@ jobs:
 
               sleep 1
 
+              docker ps
+
               URL=localhost:8000
-              `curl -s ${URL} | grep polls`
+              RESPONSE=`curl -s ${URL} | grep polls`
               echo "RESPONSE:"${RESPONSE}
               if [ -n "${RESPONSE}" ]
               then
