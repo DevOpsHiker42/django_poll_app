@@ -236,7 +236,7 @@ jobs:
           command: |
             eksctl create cluster --name "eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
               --nodes=1 \
-              --node-type t2.micro \
+              --node-type t2.small \
               --tags project=django-polls
 
       # rollback cluster on failure
