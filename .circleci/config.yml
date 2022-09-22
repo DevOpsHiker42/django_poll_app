@@ -222,7 +222,7 @@ jobs:
             export repoURI=${private_ecr_registry}/django-polls-repo
             echo $repoURI
             docker tag $IMAGE_NAME $repoURI
-            echo aws ecr get-login-password --region $region | docker login -u AWS --password-stdin $private_ecr_registry
+            aws ecr get-login-password --region $region | docker login -u AWS --password-stdin $private_ecr_registry
             docker push $repoURI
 
   create-eks-cluster:
