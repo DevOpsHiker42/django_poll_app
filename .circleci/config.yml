@@ -222,7 +222,7 @@ jobs:
             export repoURI=${private_ecr_registry}/django-polls-repo
             echo $repoURI
             docker tag $IMAGE_NAME $repoURI
-            docker login -u AWS -p $(aws ecr get-login-password --region $region) $private_ecr_registry
+            echo aws ecr get-login-password --region $region | docker login -u AWS --password-stdin $private_ecr_registry
             docker push $repoURI
 
   create-eks-cluster:
@@ -313,19 +313,12 @@ jobs:
       - run:
           name: Get cluster information
           command: |
-            kubectl version
-            kubectl get nodes
-      - kubernetes/create-or-update-resource:
-          get-rollout-status: true
-          resource-file-path: django-polls-deployment.yml
-          resource-name: deployment/django-polls-deployment
-      - run:
-          name: Get nodes
-          command: |
             kubectl get nodes
       - run:
-          name: Get deployments
+          name: Deploy app
           command: |
+            kubectl apply -f django-polls-deployment.yml
+            kubectl get pods
             kubectl get deployments
       - run:
           name: Expose app via load balancer service
@@ -460,11 +453,10 @@ jobs:
 workflows:
   default:
     jobs:
-#      - qa
-#      - docker-build:
-#          requires:
-#            - qa
-      - docker-build
+      - qa
+      - docker-build:
+          requires:
+            - qa
       - docker-publish-ecr:
           requires:
             - docker-build
