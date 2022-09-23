@@ -23,7 +23,6 @@ Resources:
               HTTPPort: '8000'
               OriginProtocolPolicy: http-only
         Enabled: True
-        DefaultRootObject: index.html
         DefaultCacheBehavior:
           ForwardedValues:
             QueryString: False
