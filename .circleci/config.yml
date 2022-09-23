@@ -465,26 +465,26 @@ workflows:
 #      - docker-build:
 #          requires:
 #            - qa
-#      - docker-publish-ecr:
-#          requires:
-#            - docker-build
-#          filters:
-#            branches:
-#              only: master
-#      - create-eks-cluster:
-#          requires:
-#            - docker-publish-ecr
-#          filters:
-#            branches:
-#              only: master
-#      - run-migrations:
-#          requires: [docker-publish-ecr, create-eks-cluster]
-#      - deploy-to-eks:
-#          requires: [run-migrations]
-      - deploy-to-eks
+      - docker-build
+      - docker-publish-ecr:
+          requires:
+            - docker-build
+          filters:
+            branches:
+              only: master
+      - create-eks-cluster:
+          requires:
+            - docker-publish-ecr
+          filters:
+            branches:
+              only: master
+      - run-migrations:
+          requires: [docker-publish-ecr, create-eks-cluster]
+      - deploy-to-eks:
+          requires: [run-migrations]
       - smoke-test:
           requires: [deploy-to-eks]
-#      - cloudfront-update:
-#          requires: [smoke-test]
+      - cloudfront-update:
+          requires: [smoke-test]
 #      - cleanup:
 #          requires: [cloudfront-update]
