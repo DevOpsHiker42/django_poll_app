@@ -389,17 +389,14 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - attach_workspace:
-          at: .
-      - install-eksctl
-      - download-cache-dependencies
-
-      - attach_workspace:
-          at: .
       - run:
           name: Install dependencies
           command: |
             yum install -y tar gzip
+      - attach_workspace:
+          at: .
+      - install-eksctl
+      - download-cache-dependencies
       - run:
           name: Store old workflow ID
           command: |
