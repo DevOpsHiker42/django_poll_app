@@ -338,8 +338,6 @@ jobs:
           command: |
             kubectl get pods -l 'app=django-polls' -o wide | awk {'printf("%-30s %-30s %-30s\n",$1,$3,$6)'}
             kubectl describe pods -l 'app=django-polls'
-            #export podname=`kubectl get pods -l 'app=django-polls' -o wide | tail -1 | awk '{print $1}'`
-            #kubectl logs $podname --previous
       - run:
           name: Get service details
           command: |
@@ -349,10 +347,12 @@ jobs:
             kubectl get service/django-polls-loadbalancer -o jsonpath='{.status.loadBalancer.ingress[].hostname}' > lb_address.txt
             kubectl get service/django-polls-loadbalancer | awk {'printf("%-30s %-30s %-30s %-30s\n",$1,$2,$4,$5)'}
             kubectl describe service django-polls-loadbalancer
-            URL=`cat lb_address.txt`
-            URL=${URL}:8000
-            echo "URL:"${URL}
-            curl -s ${URL}
+      - run:
+          name: Get additional pod debug info (runs in own shell so can't fail job if it errors)
+          shell: /bin/bash
+          command: |
+            export podname=`kubectl get pods -l 'app=django-polls' -o wide | tail -1 | awk '{print $1}'`
+            kubectl logs $podname --previous
       - persist_to_workspace:
           root: .
           paths:
@@ -379,7 +379,7 @@ jobs:
             URL=`cat lb_address.txt`
             URL=${URL}:8000
             echo "URL:"${URL}
-            curl -s ${URL}
+            curl -s --retry-delay 15 --retry 5 ${URL}
 
       # revert migrations and rollback on failure
       #- revert-migrations
@@ -465,26 +465,26 @@ workflows:
 #      - docker-build:
 #          requires:
 #            - qa
-      - docker-build
-      - docker-publish-ecr:
-          requires:
-            - docker-build
-          filters:
-            branches:
-              only: master
-      - create-eks-cluster:
-          requires:
-            - docker-publish-ecr
-          filters:
-            branches:
-              only: master
-      - run-migrations:
-          requires: [docker-publish-ecr, create-eks-cluster]
-      - deploy-to-eks:
-          requires: [run-migrations]
+#      - docker-publish-ecr:
+#          requires:
+#            - docker-build
+#          filters:
+#            branches:
+#              only: master
+#      - create-eks-cluster:
+#          requires:
+#            - docker-publish-ecr
+#          filters:
+#            branches:
+#              only: master
+#      - run-migrations:
+#          requires: [docker-publish-ecr, create-eks-cluster]
+#      - deploy-to-eks:
+#          requires: [run-migrations]
+      - deploy-to-eks
       - smoke-test:
           requires: [deploy-to-eks]
-      - cloudfront-update:
-          requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
+#      - cloudfront-update:
+#          requires: [smoke-test]
+#      - cleanup:
+#          requires: [cloudfront-update]
