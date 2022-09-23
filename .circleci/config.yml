@@ -327,23 +327,18 @@ jobs:
           name: Deploy app
           command: |
             kubectl apply -f django-polls-deployment.yml
-#            echo
-#            echo ------------------------------------------------------
-#            export lastpod=`kubectl get pods | tail -1 | awk '{print $1}'`
-#            echo "1. Logs for pod "${lastpod}
-#            kubectl logs $lastpod
-#            echo
-#            echo ------------------------------------------------------
-#            echo "2. Deployments:"
-#            kubectl get deployments
-#            echo
-#            echo ------------------------------------------------------
-#            echo "3. Deployment details for django-polls-deployment:"
-#            kubectl describe django-polls-deployment
+            echo
+            kubectl get deployments
+            echo
 #      - run:
 #          name: Expose app via load balancer service
 #          command: |
 #            kubectl create -f loadbalancer.yml
+      - run:
+          name: Get pod details
+          command: |
+            kubectl get pods -l 'app=django-polls' -o wide | awk {'printf("%-30s %-30s %-30s\n",$1,$3,$6)'}
+            kubectl describe pods -l 'app=django-polls'
       - run:
           name: Get service details
           command: |
@@ -357,11 +352,6 @@ jobs:
             URL=${URL}:8000
             echo "URL:"${URL}
             curl -s ${URL}
-      - run:
-          name: Get pod details
-          command: |
-            kubectl get pods -l 'app=django-polls' -o wide | awk {'printf("%-30s %-30s %-30s\n",$1,$3,$6)'}
-            kubectl describe pods -l 'app=django-polls'
       - persist_to_workspace:
           root: .
           paths:
