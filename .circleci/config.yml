@@ -386,17 +386,16 @@ jobs:
 
   cloudfront-update:
     docker:
-      - image: amazon/aws-cli
+      - image: cimg/python:3.8.5
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            yum install -y tar gzip
       - attach_workspace:
           at: .
-      - install-eksctl
       - download-cache-dependencies
+      - run:
+          name: Install AWS CLI
+          command: pip install awscli
+      - install-eksctl
       - run:
           name: Store old workflow ID
           command: |
@@ -420,8 +419,8 @@ jobs:
             - ./OldWorkflowID.txt
 
       # revert migrations and rollback on failure
-      - revert-migrations
-      - destroy-eks-cluster
+      #- revert-migrations
+      #- destroy-eks-cluster
 
   cleanup:
     docker:
