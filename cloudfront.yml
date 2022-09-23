@@ -27,7 +27,7 @@ Resources:
         DefaultCacheBehavior:
           ForwardedValues:
             QueryString: False
-          TargetOriginId: webpage
+          TargetOriginId: DjangoPollsCustomOrigin
           ViewerProtocolPolicy: allow-all
 
 Outputs:
