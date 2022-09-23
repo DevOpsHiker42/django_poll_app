@@ -327,19 +327,19 @@ jobs:
           name: Deploy app
           command: |
             kubectl apply -f django-polls-deployment.yml
-            echo
-            echo ------------------------------------------------------
-            export lastpod=`kubectl get pods | tail -1 | awk '{print $1}'`
-            echo "1. Logs for pod "${lastpod}
-            kubectl logs $lastpod
-            echo
-            echo ------------------------------------------------------
-            echo "2. Deployments:"
-            kubectl get deployments
-            echo
-            echo ------------------------------------------------------
-            echo "3. Deployment details for django-polls-deployment:"
-            kubectl describe django-polls-deployment
+#            echo
+#            echo ------------------------------------------------------
+#            export lastpod=`kubectl get pods | tail -1 | awk '{print $1}'`
+#            echo "1. Logs for pod "${lastpod}
+#            kubectl logs $lastpod
+#            echo
+#            echo ------------------------------------------------------
+#            echo "2. Deployments:"
+#            kubectl get deployments
+#            echo
+#            echo ------------------------------------------------------
+#            echo "3. Deployment details for django-polls-deployment:"
+#            kubectl describe django-polls-deployment
       - run:
           name: Expose app via load balancer service
           command: |
