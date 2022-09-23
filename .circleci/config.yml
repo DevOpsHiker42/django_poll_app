@@ -311,18 +311,18 @@ jobs:
           name: Get cluster information
           command: |
             kubectl get nodes
-      - run:
-          name: Setup secrets
-          command: |
-            echo "db_endpoint="${db_endpoint}                    > s.txt
-            echo "pgpass="${pgpass}                             >> s.txt
-            echo "sky="${sky}                                   >> s.txt
-            echo "static_access_key_id="${static_access_key_id} >> s.txt
-            echo "static_secret_key="${static_secret_key}       >> s.txt
-            echo "static_bucket_name="${static_bucket_name}     >> s.txt
-            kubectl create secret generic django-polls-secret --from-env-file=s.txt
-            rm s.txt
-            kubectl describe secret django-polls-secret
+#      - run:
+#          name: Setup secrets
+#          command: |
+#            echo "db_endpoint="${db_endpoint}                    > s.txt
+#            echo "pgpass="${pgpass}                             >> s.txt
+#            echo "sky="${sky}                                   >> s.txt
+#            echo "static_access_key_id="${static_access_key_id} >> s.txt
+#            echo "static_secret_key="${static_secret_key}       >> s.txt
+#            echo "static_bucket_name="${static_bucket_name}     >> s.txt
+#            kubectl create secret generic django-polls-secret --from-env-file=s.txt
+#            rm s.txt
+#            kubectl describe secret django-polls-secret
       - run:
           name: Deploy app
           command: |
@@ -330,10 +330,10 @@ jobs:
             echo
             kubectl get deployments
             echo
-      - run:
-          name: Expose app via load balancer service
-          command: |
-            kubectl create -f loadbalancer.yml
+#      - run:
+#          name: Expose app via load balancer service
+#          command: |
+#            kubectl create -f loadbalancer.yml
       - run:
           name: Get pod details
           command: |
