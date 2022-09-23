@@ -340,10 +340,10 @@ jobs:
 #            echo ------------------------------------------------------
 #            echo "3. Deployment details for django-polls-deployment:"
 #            kubectl describe django-polls-deployment
-      - run:
-          name: Expose app via load balancer service
-          command: |
-            kubectl create -f loadbalancer.yml
+#      - run:
+#          name: Expose app via load balancer service
+#          command: |
+#            kubectl create -f loadbalancer.yml
       - run:
           name: Get service details
           command: |
