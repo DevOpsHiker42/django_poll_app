@@ -304,8 +304,7 @@ jobs:
       - download-cache-dependencies
 
       - aws-eks/update-kubeconfig-with-authenticator:
-          #cluster-name: eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}
-          cluster-name: eksctl-cluster-364cf43
+          cluster-name: eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}
           install-kubectl: true
       - run:
           name: Get cluster information
