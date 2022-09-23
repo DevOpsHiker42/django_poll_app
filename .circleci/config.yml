@@ -359,8 +359,8 @@ jobs:
             - ./lb_address.txt
 
       # revert migrations and rollback on failure
-      - revert-migrations
-      - destroy-eks-cluster
+      #- revert-migrations
+      #- destroy-eks-cluster
 
   smoke-test:
     docker:
