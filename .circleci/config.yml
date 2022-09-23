@@ -304,7 +304,8 @@ jobs:
       - download-cache-dependencies
 
       - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}
+          #cluster-name: eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}
+          cluster-name: eksctl-cluster-90207bc
           install-kubectl: true
       - run:
           name: Get cluster information
@@ -348,11 +349,9 @@ jobs:
             kubectl get service/django-polls-loadbalancer | awk {'printf("%-30s %-30s %-30s %-30s\n",$1,$2,$4,$5)'}
             kubectl describe service django-polls-loadbalancer
       - run:
-          name: Get additional pod debug info (runs in own shell so can't fail job if it errors)
-          shell: /bin/bash
+          name: Get additional pod debug info (always returns true so can't fail job if it errors)
           command: |
-            export podname=`kubectl get pods -l 'app=django-polls' -o wide | tail -1 | awk '{print $1}'`
-            kubectl logs $podname --previous
+            kubectl logs `kubectl get pods -l 'app=django-polls' -o wide | tail -1 | awk '{print $1}'` --previous || true
       - persist_to_workspace:
           root: .
           paths:
@@ -461,26 +460,27 @@ jobs:
 workflows:
   default:
     jobs:
-      - qa
-      - docker-build:
-          requires:
-            - qa
-      - docker-publish-ecr:
-          requires:
-            - docker-build
-          filters:
-            branches:
-              only: master
-      - create-eks-cluster:
-          requires:
-            - docker-publish-ecr
-          filters:
-            branches:
-              only: master
-      - run-migrations:
-          requires: [docker-publish-ecr, create-eks-cluster]
-      - deploy-to-eks:
-          requires: [run-migrations]
+#      - qa
+#      - docker-build:
+#          requires:
+#            - qa
+#      - docker-publish-ecr:
+#          requires:
+#            - docker-build
+#          filters:
+#            branches:
+#              only: master
+#      - create-eks-cluster:
+#          requires:
+#            - docker-publish-ecr
+#          filters:
+#            branches:
+#              only: master
+#      - run-migrations:
+#          requires: [docker-publish-ecr, create-eks-cluster]
+#      - deploy-to-eks:
+#          requires: [run-migrations]
+      - deploy-to-eks
       - smoke-test:
           requires: [deploy-to-eks]
       - cloudfront-update:
