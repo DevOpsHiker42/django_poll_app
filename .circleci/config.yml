@@ -462,9 +462,10 @@ workflows:
   default:
     jobs:
 #      - qa
-      - docker-build:
-          requires:
-            - qa
+#      - docker-build:
+#          requires:
+#            - qa
+      - docker-build
       - docker-publish-ecr:
           requires:
             - docker-build
