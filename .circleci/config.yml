@@ -339,6 +339,8 @@ jobs:
           command: |
             kubectl get pods -l 'app=django-polls' -o wide | awk {'printf("%-30s %-30s %-30s\n",$1,$3,$6)'}
             kubectl describe pods -l 'app=django-polls'
+            export podname=`kubectl get pods -l 'app=django-polls' -o wide | tail -1 | awk '{print $1}'`
+            kubectl logs $podname --previous
       - run:
           name: Get service details
           command: |
