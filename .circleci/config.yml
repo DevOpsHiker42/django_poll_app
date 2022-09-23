@@ -350,10 +350,6 @@ jobs:
             kubectl get service/django-polls-loadbalancer -o jsonpath='{.status.loadBalancer.ingress[].hostname}' > lb_address.txt
             kubectl get service/django-polls-loadbalancer | awk {'printf("%-30s %-30s %-30s %-30s\n",$1,$2,$4,$5)'}
             kubectl describe service django-polls-loadbalancer
-            URL=`cat lb_address.txt`
-            URL=${URL}:8000
-            echo "URL:"${URL}
-            curl -s ${URL}
       - persist_to_workspace:
           root: .
           paths:
@@ -390,8 +386,8 @@ jobs:
             fi
 
       # revert migrations and rollback on failure
-      - revert-migrations
-      - destroy-eks-cluster
+      #- revert-migrations
+      #- destroy-eks-cluster
 
   cloudfront-update:
     docker:
