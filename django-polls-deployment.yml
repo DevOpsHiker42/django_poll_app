@@ -19,5 +19,8 @@ spec:
       containers:
         - name: django-polls
           image: 429593792117.dkr.ecr.us-east-1.amazonaws.com/django-polls-repo:latest
+          envFrom:
+          - secretRef:
+              name: django-polls-secret
           ports:
             - containerPort: 8000
