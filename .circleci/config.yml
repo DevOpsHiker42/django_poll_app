@@ -357,8 +357,8 @@ jobs:
             - ./lb_address.txt
 
       # revert migrations and rollback on failure
-      #- revert-migrations
-      #- destroy-eks-cluster
+      - revert-migrations
+      - destroy-eks-cluster
 
   smoke-test:
     docker:
@@ -380,8 +380,8 @@ jobs:
             curl -s --retry-delay 15 --retry 5 ${URL}
 
       # revert migrations and rollback on failure
-      #- revert-migrations
-      #- destroy-eks-cluster
+      - revert-migrations
+      - destroy-eks-cluster
 
   cloudfront-update:
     docker:
@@ -419,8 +419,8 @@ jobs:
             - ./OldWorkflowID.txt
 
       # revert migrations and rollback on failure
-      #- revert-migrations
-      #- destroy-eks-cluster
+      - revert-migrations
+      - destroy-eks-cluster
 
   cleanup:
     docker:
