@@ -290,8 +290,8 @@ jobs:
             python3 poll_site/manage.py migrate
 
       # revert migrations and rollback on failure
-      - revert-migrations
-      - destroy-eks-cluster
+      #- revert-migrations
+      #- destroy-eks-cluster
 
   deploy-to-eks:
     docker:
@@ -304,7 +304,8 @@ jobs:
       - download-cache-dependencies
 
       - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}
+          #cluster-name: eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}
+          cluster-name: eksctl-cluster-f5cbe4d
           install-kubectl: true
       - run:
           name: Get cluster information
@@ -357,8 +358,8 @@ jobs:
             - ./lb_address.txt
 
       # revert migrations and rollback on failure
-      - revert-migrations
-      - destroy-eks-cluster
+      #- revert-migrations
+      #- destroy-eks-cluster
 
   smoke-test:
     docker:
@@ -380,8 +381,8 @@ jobs:
             curl -s --retry-delay 15 --retry 5 ${URL}
 
       # revert migrations and rollback on failure
-      - revert-migrations
-      - destroy-eks-cluster
+      #- revert-migrations
+      #- destroy-eks-cluster
 
   cloudfront-update:
     docker:
@@ -419,8 +420,8 @@ jobs:
             - ./OldWorkflowID.txt
 
       # revert migrations and rollback on failure
-      - revert-migrations
-      - destroy-eks-cluster
+      #- revert-migrations
+      #- destroy-eks-cluster
 
   cleanup:
     docker:
@@ -456,29 +457,31 @@ jobs:
 workflows:
   default:
     jobs:
-      - qa
-      - docker-build:
-          requires:
-            - qa
+#      - qa
+#      - docker-build:
+#          requires:
+#            - qa
+      - docker-build
       - docker-publish-ecr:
           requires:
             - docker-build
           filters:
             branches:
               only: master
-      - create-eks-cluster:
-          requires:
-            - docker-publish-ecr
-          filters:
-            branches:
-              only: master
-      - run-migrations:
-          requires: [docker-publish-ecr, create-eks-cluster]
-      - deploy-to-eks:
-          requires: [run-migrations]
+#      - create-eks-cluster:
+#          requires:
+#            - docker-publish-ecr
+#          filters:
+#            branches:
+#              only: master
+#      - run-migrations:
+#          requires: [docker-publish-ecr, create-eks-cluster]
+      - deploy-to-eks
+#      - deploy-to-eks:
+#          requires: [run-migrations]
       - smoke-test:
           requires: [deploy-to-eks]
       - cloudfront-update:
           requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
+#      - cleanup:
+#          requires: [cloudfront-update]
