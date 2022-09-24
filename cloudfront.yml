@@ -12,6 +12,29 @@ Parameters:
 
 Resources:
 
+  DjangoCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:  
+      CachePolicyConfig:
+        DefaultTTL: 86400
+        MaxTTL: 31536000
+        MinTTL: 1
+        Name: DjangoCachePolicyConfig
+        ParametersInCacheKeyAndForwardedToOrigin:
+          EnableAcceptEncodingGzip: false
+          CookiesConfig:
+            CookieBehavior: whitelist
+            Cookies:
+              - csrf_token
+              - _app_session
+          HeadersConfig:
+            HeaderBehavior: whitelist
+            Headers:
+              - Origin
+              - Referer
+          QueryStringsConfig:
+            QueryStringBehavior: none
+  
   DjangoPollsDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -24,20 +47,15 @@ Resources:
               OriginProtocolPolicy: http-only
         Enabled: True
         DefaultCacheBehavior:
-          ForwardedValues:
-            QueryString: False
-            Cookies:
-              Forward:whitelist
-              WhitelistedNames:
-                - csrf_token
-            AllowedMethods:
-              - GET
-              - HEAD
-              - DELETE
-              - OPTIONS
-              - PATCH
-              - POST
-              - PUT
+          CachePolicyId: !Ref DjangoCachePolicy
+          AllowedMethods:
+            - GET
+            - HEAD
+            - DELETE
+            - OPTIONS
+            - PATCH
+            - POST
+            - PUT
           TargetOriginId: DjangoPollsCustomOrigin
           ViewerProtocolPolicy: allow-all
 
