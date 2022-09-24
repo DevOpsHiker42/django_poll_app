@@ -290,8 +290,8 @@ jobs:
             python3 poll_site/manage.py migrate
 
       # revert migrations and rollback on failure
-      #- revert-migrations
-      #- destroy-eks-cluster
+      - revert-migrations
+      - destroy-eks-cluster
 
   deploy-to-eks:
     docker:
@@ -304,25 +304,24 @@ jobs:
       - download-cache-dependencies
 
       - aws-eks/update-kubeconfig-with-authenticator:
-          #cluster-name: eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}
-          cluster-name: eksctl-cluster-f5cbe4d
+          cluster-name: eksctl-cluster-${CIRCLE_WORKFLOW_ID:0:7}
           install-kubectl: true
       - run:
           name: Get cluster information
           command: |
             kubectl get nodes
-#      - run:
-#          name: Setup secrets
-#          command: |
-#            echo "db_endpoint="${db_endpoint}                    > s.txt
-#            echo "pgpass="${pgpass}                             >> s.txt
-#            echo "sky="${sky}                                   >> s.txt
-#            echo "static_access_key_id="${static_access_key_id} >> s.txt
-#            echo "static_secret_key="${static_secret_key}       >> s.txt
-#            echo "static_bucket_name="${static_bucket_name}     >> s.txt
-#            kubectl create secret generic django-polls-secret --from-env-file=s.txt
-#            rm s.txt
-#            kubectl describe secret django-polls-secret
+      - run:
+          name: Setup secrets
+          command: |
+            echo "db_endpoint="${db_endpoint}                    > s.txt
+            echo "pgpass="${pgpass}                             >> s.txt
+            echo "sky="${sky}                                   >> s.txt
+            echo "static_access_key_id="${static_access_key_id} >> s.txt
+            echo "static_secret_key="${static_secret_key}       >> s.txt
+            echo "static_bucket_name="${static_bucket_name}     >> s.txt
+            kubectl create secret generic django-polls-secret --from-env-file=s.txt
+            rm s.txt
+            kubectl describe secret django-polls-secret
       - run:
           name: Deploy app
           command: |
@@ -330,10 +329,10 @@ jobs:
             echo
             kubectl get deployments
             echo
-#      - run:
-#          name: Expose app via load balancer service
-#          command: |
-#            kubectl create -f loadbalancer.yml
+      - run:
+          name: Expose app via load balancer service
+          command: |
+            kubectl create -f loadbalancer.yml
       - run:
           name: Get pod details
           command: |
@@ -358,8 +357,8 @@ jobs:
             - ./lb_address.txt
 
       # revert migrations and rollback on failure
-      #- revert-migrations
-      #- destroy-eks-cluster
+      - revert-migrations
+      - destroy-eks-cluster
 
   smoke-test:
     docker:
@@ -381,8 +380,8 @@ jobs:
             curl -s --retry-delay 15 --retry 5 ${URL}
 
       # revert migrations and rollback on failure
-      #- revert-migrations
-      #- destroy-eks-cluster
+      - revert-migrations
+      - destroy-eks-cluster
 
   cloudfront-update:
     docker:
@@ -420,8 +419,8 @@ jobs:
             - ./OldWorkflowID.txt
 
       # revert migrations and rollback on failure
-      #- revert-migrations
-      #- destroy-eks-cluster
+      - revert-migrations
+      - destroy-eks-cluster
 
   cleanup:
     docker:
@@ -457,32 +456,29 @@ jobs:
 workflows:
   default:
     jobs:
-#      - qa
-#      - docker-build:
-#          requires:
-#            - qa
-      - docker-build
+      - qa
+      - docker-build:
+          requires:
+            - qa
       - docker-publish-ecr:
           requires:
             - docker-build
           filters:
             branches:
               only: master
-#      - create-eks-cluster:
-#          requires:
-#            - docker-publish-ecr
-#          filters:
-#            branches:
-#              only: master
-#      - run-migrations:
-#          requires: [docker-publish-ecr, create-eks-cluster]
+      - create-eks-cluster:
+          requires:
+            - docker-publish-ecr
+          filters:
+            branches:
+              only: master
+      - run-migrations:
+          requires: [docker-publish-ecr, create-eks-cluster]
       - deploy-to-eks:
-          requires: [docker-publish-ecr]
-#      - deploy-to-eks:
-#          requires: [run-migrations]
+          requires: [run-migrations]
       - smoke-test:
           requires: [deploy-to-eks]
       - cloudfront-update:
           requires: [smoke-test]
-#      - cleanup:
-#          requires: [cloudfront-update]
+      - cleanup:
+          requires: [cloudfront-update]

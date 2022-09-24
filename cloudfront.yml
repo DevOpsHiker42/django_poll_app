@@ -25,7 +25,8 @@ Resources:
           CookiesConfig:
             CookieBehavior: whitelist
             Cookies:
-              - csrf_token
+              - csrftoken
+              - csrfmiddlewaretoken
               - _app_session
           HeadersConfig:
             HeaderBehavior: whitelist
