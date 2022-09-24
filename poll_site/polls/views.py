@@ -5,6 +5,8 @@ from django.urls import reverse
 from django.views import generic
 from django.db.models import F
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 
 from .models import Choice, Question
 
@@ -26,6 +28,8 @@ class IndexView(generic.ListView):
         ).order_by('-pub_date')[:5]
 
 
+decorators = [never_cache,]
+@method_decorator(decorators, name='dispatch')
 class DetailView(generic.DetailView):
     model = Question
     template_name = 'polls/detail.html'
