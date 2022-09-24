@@ -476,7 +476,8 @@ workflows:
 #              only: master
 #      - run-migrations:
 #          requires: [docker-publish-ecr, create-eks-cluster]
-      - deploy-to-eks
+      - deploy-to-eks:
+          requires: [docker-publish-ecr]
 #      - deploy-to-eks:
 #          requires: [run-migrations]
       - smoke-test:
