@@ -183,6 +183,7 @@ jobs:
       - run:
           name: Build Docker image
           command: |
+            . venv/bin/activate
             docker build -t $IMAGE_NAME:latest .
       - run:
           name: Test Docker image
