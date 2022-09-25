@@ -166,6 +166,7 @@ jobs:
           static_secret_key: $static_secret_key
     steps:
       - checkout
+      - download-cache-dependencies
       - setup_remote_docker
       - run:
           name: Build Docker image
