@@ -54,5 +54,8 @@ The pipeline jobs included are:
 | Screenshots   | SCREENSHOT09_GREEN_Pipeline_Deploy_app_Step.png   | Screenshot of step detail for Deploy_app step (GREEN pipeline run)             |
 | Screenshots   | SCREENSHOT10_GREEN_EC2_INSTANCE.png               | Screenshot of GREEN EC2 instance                                               |
 | Screenshots   | SCREENSHOT11_BLUE_GREEN_Switchover_Steps.png      | Screenshot of BLUE/GREEN switchover (in GREEN pipeline run)                    |
+| Screenshots   | SCREENSHOT12_Docker_Build_Job.png                 | Screenshot of Docker Build job (from GREEN run)                                |
+| Screenshots   | SCREENSHOT13_BUILD_DOCKER_IMAGE_Step.png          | Screenshot of BUILD DOCKER IMAGE step in Docker Build job (from GREEN run)     |
+| Screenshots   | SCREENSHOT14_ECR_Centralized_Image_Repo.png       | Screenshot of centralized ECR image repository                                 |
 
 <End of README>
